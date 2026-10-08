@@ -46,3 +46,22 @@ plans:
   limits: []
 notes: Prepaid, pay-as-you-go; per-number prices are quoted live by GET /pricing/quote (customerMonthlyCents, customerUpfrontCents).
   The /pricing path serves the same page as the homepage.
+x-canonical:
+  generated: '2026-10-08'
+  vocabulary: all/0-working/economics/plans-canonical.yml
+  models:
+  - negotiated
+  units: []
+  plans:
+  - name: Pay as you go
+    access: other
+    model: unstated
+    model_how: derived
+    units: []
+    periods: []
+  - name: Contact us
+    access: other
+    model: negotiated
+    model_how: derived
+    units: []
+    periods: []
