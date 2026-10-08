@@ -27,6 +27,8 @@ maintainers:
   email: info@apis.io
 image: https://saperly.com/saperly-flower-hero.jpg
 common:
+- type: RateLimits
+  url: rate-limits/saperly-rate-limits.yml
 - type: DeveloperPortal
   url: https://api.saperly.com</code
 - type: AgenticAccess
