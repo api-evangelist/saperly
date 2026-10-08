@@ -1,0 +1,25 @@
+generated: '2026-10-07'
+method: searched
+source: https://saperly.com/AGENTS.md ("The core flow (v2 REST) — All paths are relative to https://api.saperly.com
+  (no /v2 prefix)"); https://saperly.com/docs/sdks/node; openapi/saperly-openapi.yml info.version; probes of https://status.saperly.com
+  (no DNS answer), https://saperly.com/status (404) and https://saperly.com/changelog (404) on 2026-10-07
+versioning:
+  scheme: product generation, not URL-versioned
+  current: v2 API (the docs and SDKs call it the v2 API; the contract info.version is 0.1.0)
+  path_prefix: none — all paths are relative to https://api.saperly.com with no /v2 prefix
+  header: null
+  notes: The v1 surface (lines, sk_test_/sk_svc_ keys, https://saperly.com/api/v1/mcp) survives only in the @saperly/mcp
+    and @saperly/sdk packages; the current docs, @trysaperly/sdk 3.0.0 and saperly 3.0.0 target v2.
+deprecation:
+  policy: null
+  headers: null
+  notes: No deprecation policy, Deprecation/Sunset header usage, or changelog is published; the contract marks 0
+    of 48 operations deprecated.
+sla:
+  published: false
+  notes: The homepage "Contact us" tier lists "Priority support + SLAs" as an enterprise term; no SLA figure is
+    published.
+status_page: null
+changelog: null
+deprecated_operations: []
+deprecated_products: []

@@ -1,0 +1,204 @@
+generated: '2026-10-07'
+method: probed
+status: published
+source: https://saperly.com/docs/sdks/mcp; https://saperly.com/AGENTS.md; https://github.com/Saperly/saperly-mcp
+  (README + manifest.json); live probes 2026-10-07
+description: Saperly operates a remote MCP server at https://api.saperly.com/mcp (Streamable HTTP, JSON-RPC 2.0)
+  authenticated with a scoped sap_sk_ bearer key or an MCP OAuth 2.1 access token issued by https://saperly.com.
+  Tools are discovered at connect time via tools/list and filtered per caller by scope. A local stdio server also
+  ships as npx -y @saperly/mcp with a 32-tool manifest.
+server:
+  url: https://api.saperly.com/mcp
+  transport: streamable-http
+  protocol: JSON-RPC 2.0
+  auth: 'Authorization: Bearer <sap_sk_ key> or MCP OAuth access token'
+  docs: https://saperly.com/docs/sdks/mcp
+deployment:
+  mode: both
+  endpoint: https://api.saperly.com/mcp
+  install: npx -y @saperly/mcp
+  package: https://www.npmjs.com/package/@saperly/mcp
+  auth: oauth
+  verified: probed
+  note: 'Remote endpoint probed 2026-10-07: POST tools/list returned 401 with WWW-Authenticate: Bearer error="invalid_token",
+    resource_metadata="https://api.saperly.com/.well-known/oauth-protected-resource". The stdio package is on npm
+    (0.3.0, 2026-05-14) and documented in the repo README; a legacy hosted URL the README names, https://saperly.com/api/v1/mcp,
+    answered 404 (GET) and 500 "Only HTML requests are supported here" (POST) and is not live.'
+rfc9728:
+  resource_metadata: https://api.saperly.com/.well-known/oauth-protected-resource
+  status: 200
+  resource: https://api.saperly.com/mcp
+  authorization_servers:
+  - https://saperly.com
+  bearer_methods_supported:
+  - header
+oauth_authorization_server:
+  metadata: https://saperly.com/.well-known/oauth-authorization-server
+  status: 200
+  issuer: https://saperly.com
+  authorization_endpoint: https://saperly.com/api/auth/mcp/authorize
+  token_endpoint: https://saperly.com/api/auth/mcp/token
+  registration_endpoint: https://saperly.com/api/auth/mcp/register
+  grant_types_supported:
+  - authorization_code
+  - refresh_token
+  code_challenge_methods_supported:
+  - S256
+  scopes_supported:
+  - openid
+  - profile
+  - email
+  - offline_access
+probes:
+- url: https://api.saperly.com/mcp
+  request: POST tools/list
+  status: 401
+  www_authenticate: Bearer error="invalid_token", resource_metadata="https://api.saperly.com/.well-known/oauth-protected-resource"
+- url: https://api.saperly.com/.well-known/oauth-protected-resource
+  status: 200
+- url: https://saperly.com/.well-known/oauth-authorization-server
+  status: 200
+- url: https://saperly.com/api/v1/mcp
+  request: POST tools/list
+  status: 500
+  note: legacy hosted URL from the saperly-mcp README; body {"error":"Only HTML requests are supported here"}
+tool_source: documented
+tool_source_url: https://github.com/Saperly/saperly-mcp/blob/main/manifest.json
+tool_note: The 32 tools below are the names the provider PUBLISHES in the stdio package manifest (32 tools across
+  12 groups per the README); the README says the hosted connector serves the same OAuth-usable surface minus the
+  saperly_key_* tools. The remote server's live tools/list is auth-gated (401) and was not observed; inputSchemas
+  need authenticated introspection. The current docs page names tool capabilities only in prose (provision a line,
+  send SMS, place a call, check consent, read usage).
+tool_count: 32
+tools:
+- name: saperly_create_line
+  group: lines
+  description: 'provision a new phone line for your ai agent. returns the assigned phone number. mode: webhook (S2T+T2S
+    via your HTTP webhook, bring your own AI), audio (raw websocket stream), or hosted (saperly runs the AI, requires
+    systemPrompt).'
+- name: saperly_lines
+  group: lines
+  description: list your phone lines, or get one line's full detail. pass `line` (a phone number or line id) for
+    that line's details; omit it to list all lines.
+- name: saperly_update_line
+  group: lines
+  description: update a phone line's configuration. can change webhook urls, system prompt, voice, recording, and
+    other settings.
+- name: saperly_await_inbound_call
+  group: calls
+  description: wait for a new inbound call to arrive on a line.
+- name: saperly_calls
+  group: calls
+  description: list recent calls, or get full detail for one. pass `callId` for a single call's details; omit it
+    to list recent calls (optionally filtered by line or status).
+- name: saperly_hangup
+  group: calls
+  description: terminate an active call. irreversible.
+- name: saperly_place_call
+  group: calls
+  description: 'place an outbound phone call. blocking by default: it waits for the call to be answered (or declined
+    / no-answer) and returns the outcome, so you won''t place a second call while the first is still ringing. modes:
+    ''scripted'' (default — you drive: optionally speak `say` once answered and get the caller''s first reply, then
+    continue with saperly_say / saperly_press_digits / saperly_hangup), or ''ai'' (Saperly runs the conversation
+    from your `prompt` and returns the full transcript when the call ends — no backend needed). consent must be
+    on file first (saperly_check_consent / saperly_record_outbound_consent). costs credits.'
+- name: saperly_press_digits
+  group: calls
+  description: press DTMF keypad digits inside an active call (e.g. to navigate an IVR menu).
+- name: saperly_say
+  group: calls
+  description: on a live call, speak text and/or listen for the caller's next response. pass `text` to speak it
+    (and, by default, return the caller's reply); omit `text` to just listen. returns interruption details if the
+    caller talked over the agent.
+- name: saperly_check_consent
+  group: consent
+  description: check if consent exists for a phone number on a line.
+- name: saperly_record_outbound_consent
+  group: consent
+  description: record that outbound consent was obtained for a phone number (you are recording a fact, not granting
+    permission). required before making outbound calls to that number.
+- name: saperly_revoke_consent
+  group: consent
+  description: revoke consent for a phone number. future outbound calls to this number will be blocked.
+- name: saperly_create_disclosure
+  group: disclosures
+  description: create a custom tcpa disclosure message played at the start of every call on lines using this disclosure.
+- name: saperly_list_disclosures
+  group: disclosures
+  description: list all tcpa disclosure configurations.
+- name: saperly_get_balance
+  group: billing
+  description: check your account balance in USD. calls cost $0.13/min in webhook mode or $0.26/min in hosted mode
+    for Zone A (US/Canada). international destinations use Zone B (×2) or Zone C (×3) multipliers. phone numbers
+    cost $2.50/month (first number free for 30 days). credits never expire.
+- name: saperly_list_transactions
+  group: billing
+  description: 'list recent billing transactions in USD: signup credit, postpaid charges, refunds, number fees,
+    call/SMS charges. shows amount, type, and running balance (all dollars).'
+- name: saperly_account_overview
+  group: account
+  description: 'get a full snapshot of your saperly account: all lines, balance, usage, and 5 most recent calls.
+    use this first to understand current state.'
+- name: saperly_webhook_deliveries
+  group: webhooks
+  description: list recent webhook delivery attempts. shows status, duration, errors for each delivery.
+- name: saperly_webhook_stats
+  group: webhooks
+  description: get aggregate webhook delivery statistics.
+- name: saperly_webhook_test
+  group: webhooks
+  description: send a test webhook to a line's configured URL.
+- name: saperly_conversations
+  group: messages
+  description: list SMS conversations grouped by contact, or get the full message history with one contact. pass
+    `phoneNumber` (with `line`) to fetch that conversation's messages; omit it to list conversations (optionally
+    filtered by line).
+- name: saperly_send_sms
+  group: messages
+  description: send an outbound SMS. requires either an inbound SMS from the recipient within the last 24 hours,
+    OR active explicit_outbound consent on file for that (line, recipient) pair (e.g. recorded via POST /v1/consent
+    or a web-form opt-in).
+- name: saperly_get_usage
+  group: usage
+  description: get usage statistics. shows calls, minutes, SMS counts, and costs by day or month.
+- name: saperly_get_settings
+  group: settings
+  description: get your account settings. currently shows default webhook URL.
+- name: saperly_update_settings
+  group: settings
+  description: update account settings. set or clear the default webhook URL used for new lines.
+- name: saperly_list_voices
+  group: voices
+  description: list available TTS voices for hosted- and webhook-mode calls. use the voice slug when creating or
+    updating a line.
+- name: saperly_key_create
+  group: keys
+  description: 'mint a new child api key. requires service-key auth (sk_svc_...). returns the plaintext key ONCE
+    — save it immediately. permissions: full | call_only | sms_only | read_only.'
+- name: saperly_key_delete
+  group: keys
+  description: soft-revoke a child api key. DESTRUCTIVE — the key stops working immediately (no grace window for
+    child keys). requires confirm=true.
+- name: saperly_key_get
+  group: keys
+  description: retrieve a single child api key by id. metadata only — no plaintext. includes revoked keys (so you
+    can see when a key was revoked).
+- name: saperly_key_list
+  group: keys
+  description: list child api keys minted by the service key bound to this mcp client. metadata only — no plaintext.
+- name: saperly_key_rotate
+  group: keys
+  description: 'atomic rotate: revoke the old child api key + mint a new one with the same permissions/scope/cap.
+    returns the new plaintext key ONCE. DESTRUCTIVE — old key stops working. requires confirm=true.'
+- name: saperly_key_update
+  group: keys
+  description: update a child api key's label, scope, permissions, or cap. partial update — only fields you pass
+    are changed. pass null to clear agent_label / line_id / monthly_cap_cents.
+local:
+  package: '@saperly/mcp'
+  install: npm install -g @saperly/mcp
+  run: npx -y @saperly/mcp
+  env: SAPERLY_API_KEY
+  repository: https://github.com/Saperly/saperly-mcp
+  version: 0.3.0
+  published: '2026-05-14'

@@ -1,0 +1,224 @@
+generated: '2026-10-07'
+method: derived
+source: mcp/saperly-mcp.yml (tool names from https://github.com/Saperly/saperly-mcp/blob/main/manifest.json) bound
+  by name and semantics to operationIds in openapi/saperly-openapi.yml; the live remote tools/list is auth-gated
+  (401), so no inputSchema was observed and confidence is set accordingly
+surfaces:
+  openapi: openapi/saperly-openapi.yml
+  mcp: 'https://api.saperly.com/mcp (gated: 401, OAuth 2.1 / sap_sk_ bearer)'
+  mcp_local: npx -y @saperly/mcp
+  graphql: null
+crosswalk:
+- tool: saperly_create_line
+  category: lines
+  rest:
+  - numbers.provision
+  binding: semantic
+  confidence: medium
+  note: v1 "line" = v2 number; the handler now lives on a connection attached via numbers.assignConnection
+- tool: saperly_lines
+  category: lines
+  rest:
+  - numbers.list
+  - numbers.get
+  binding: semantic
+  confidence: medium
+- tool: saperly_update_line
+  category: lines
+  rest:
+  - numbers.setWebhook
+  - numbers.assignConnection
+  - connections.update
+  binding: semantic
+  confidence: low
+  note: v1 line config (webhook url, system prompt) is split across the number and its connection in v2
+- tool: saperly_calls
+  category: calls
+  rest:
+  - voice.list
+  - voice.get
+  binding: semantic
+  confidence: medium
+- tool: saperly_hangup
+  category: calls
+  rest:
+  - voice.end
+  binding: semantic
+  confidence: high
+- tool: saperly_place_call
+  category: calls
+  rest:
+  - voice.place
+  binding: semantic
+  confidence: high
+- tool: saperly_check_consent
+  category: consent
+  rest:
+  - consent.check
+  binding: semantic
+  confidence: high
+- tool: saperly_record_outbound_consent
+  category: consent
+  rest:
+  - consent.record
+  binding: semantic
+  confidence: high
+- tool: saperly_revoke_consent
+  category: consent
+  rest:
+  - consent.revoke
+  binding: semantic
+  confidence: high
+- tool: saperly_create_disclosure
+  category: disclosures
+  rest:
+  - connections.create
+  - connections.update
+  binding: semantic
+  confidence: low
+  note: in v2 the TCPA disclosure is the complianceEnabled + disclosure fields on a connection
+- tool: saperly_list_disclosures
+  category: disclosures
+  rest:
+  - connections.list
+  binding: semantic
+  confidence: low
+- tool: saperly_get_balance
+  category: billing
+  rest:
+  - usage.summary
+  binding: semantic
+  confidence: medium
+  note: balanceCents rides on GET /usage in v2
+- tool: saperly_account_overview
+  category: account
+  rest:
+  - usage.summary
+  - numbers.list
+  - voice.list
+  binding: semantic
+  confidence: low
+  note: composite
+- tool: saperly_webhook_deliveries
+  category: webhooks
+  rest:
+  - workspace.webhook-deliveries
+  binding: semantic
+  confidence: medium
+  note: v2 route is slug-in-path (dashboard plane)
+- tool: saperly_conversations
+  category: messages
+  rest:
+  - messaging.list
+  binding: semantic
+  confidence: medium
+- tool: saperly_send_sms
+  category: messages
+  rest:
+  - messaging.send
+  binding: semantic
+  confidence: high
+- tool: saperly_get_usage
+  category: usage
+  rest:
+  - usage.summary
+  binding: semantic
+  confidence: high
+- tool: saperly_get_settings
+  category: settings
+  rest:
+  - workspace.webhooks
+  binding: semantic
+  confidence: low
+  note: default webhook URL is workspace-level in v2
+- tool: saperly_update_settings
+  category: settings
+  rest:
+  - workspace.create-webhook
+  binding: semantic
+  confidence: low
+- tool: saperly_list_voices
+  category: voices
+  rest:
+  - voices.list
+  binding: semantic
+  confidence: high
+- tool: saperly_key_create
+  category: keys
+  rest:
+  - keys.mint
+  binding: semantic
+  confidence: high
+- tool: saperly_key_delete
+  category: keys
+  rest:
+  - keys.revoke
+  binding: semantic
+  confidence: high
+- tool: saperly_key_get
+  category: keys
+  rest:
+  - keys.list
+  binding: semantic
+  confidence: low
+  note: no single-key GET in v2
+- tool: saperly_key_list
+  category: keys
+  rest:
+  - keys.list
+  binding: semantic
+  confidence: high
+- tool: saperly_key_rotate
+  category: keys
+  rest:
+  - keys.revoke
+  - keys.mint
+  binding: semantic
+  confidence: medium
+  note: 'composite: revoke + mint'
+mcp_only:
+- tool: saperly_await_inbound_call
+  reason: blocking wait for an inbound call; the REST surface delivers call.received as a webhook event
+- tool: saperly_press_digits
+  reason: DTMF on a live call has no v2 REST operation
+- tool: saperly_say
+  reason: live-call speak/listen is a manual-mode websocket directive, not a REST operation
+- tool: saperly_list_transactions
+  reason: ledger transaction history is dashboard-only in v2 (docs/guides/billing)
+- tool: saperly_webhook_stats
+  reason: no v2 REST operation
+- tool: saperly_webhook_test
+  reason: test sends are managed in the dashboard (docs/guides/webhooks)
+- tool: saperly_key_update
+  reason: no key-update operation in v2; keys are minted and revoked
+rest_only:
+- health.check
+- workspace.members
+- workspace.api-tokens
+- api-token-registry.create
+- workspace.audit-events
+- api-token-registry.revoke
+- workspace-invitations.send
+- assistant.answer
+- numbers.release
+- numbers.setSmsSenderId
+- numbers.setCallerIdName
+- connections.get
+- connections.delete
+- voice.transfer
+- voice.recording
+- voice.transcript
+- customVoices.list
+- customVoices.create
+- customVoices.get
+- customVoices.delete
+- languages.list
+- consent.list
+- pricing.quote
+coverage:
+  tools: 32
+  tools_mapped: 25
+  tools_mcp_only: 7
+  operations: 48
+  operations_with_tool: 25
+  operations_rest_only: 23

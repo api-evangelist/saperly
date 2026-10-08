@@ -1,0 +1,138 @@
+openapi: 3.2.0
+info:
+  title: Saperly Pricing API
+  version: 0.1.0
+  description: 'Operations tagged pricing across 2 of this provider''s published API definitions: api-saperly-com-openapi.json, saperly-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: /
+  description: This worker
+- url: https://api.saperly.com
+  description: Production
+security: []
+tags:
+- name: Pricing
+  description: Pricing — get a live quote for what a phone number will cost before you provision it. Returns the customer-facing monthly and upfront prices for a given country and number type, so you can confirm the cost up front and pass it to `POST /numbers` as the `expected*` price.
+paths:
+  /pricing/quote:
+    get:
+      tags:
+      - Pricing
+      operationId: pricing.quote
+      parameters:
+      - name: country
+        in: query
+        schema:
+          type: string
+          description: ISO 3166-1 alpha-2 country code to price a number in (e.g. `US`, `GB`).
+        required: true
+      - name: numberType
+        in: query
+        schema:
+          type: string
+          description: The kind of number to price (e.g. `local`, `toll_free`, `mobile`, `national`).
+        required: true
+      security: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  customerMonthlyCents:
+                    type: number
+                  customerUpfrontCents:
+                    type: number
+                required:
+                - customerMonthlyCents
+                - customerUpfrontCents
+                additionalProperties: false
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '403':
+          description: AuthorizationDenied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthorizationDenied'
+        '429':
+          description: RateLimited
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimited'
+        '500':
+          description: InternalError
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+      summary: Quote the price of a phone number
+    servers:
+    - url: /
+      description: This worker
+components:
+  schemas:
+    AuthorizationDenied:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - AuthorizationDenied
+        reason:
+          type: string
+      required:
+      - _tag
+      - reason
+      additionalProperties: false
+    RateLimited:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - RateLimited
+        bucket:
+          type: string
+          description: The rate-limit bucket that was exhausted.
+      required:
+      - _tag
+      - bucket
+      additionalProperties: false
+    Unauthorized:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - Unauthorized
+        message:
+          type: string
+          description: Why the request was rejected (missing, invalid, or insufficient credentials).
+      required:
+      - _tag
+      - message
+      additionalProperties: false
+    InternalError:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - InternalError
+        traceId:
+          type: string
+          description: A correlation id for this failure — quote it when reporting the problem so the request can be traced.
+      required:
+      - _tag
+      - traceId
+      additionalProperties: false
+x-refined-from:
+- api-saperly-com-openapi.json
+- saperly-openapi.yml

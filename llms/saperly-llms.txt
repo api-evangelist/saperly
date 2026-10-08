@@ -1,0 +1,98 @@
+# Saperly — the phone carrier for AI agents
+
+> Saperly is the phone carrier for AI agents. One API call gives any AI agent a real phone number with compliance built in. The core model is connection-first: you define a reusable CONNECTION (instructions, voice) once and attach it to any number of phone numbers — one connection can power a fleet of ten thousand numbers. Your AI agents get real inbound/outbound voice and SMS with mandatory AI disclosure, consent management, and an append-only audit trail. No carrier account required.
+
+## Key facts
+- Product: a developer REST API + dashboard that provisions phone numbers and routes them to reusable connections.
+- Model: numbers → connections → compliance. One connection attaches to N numbers.
+- Channels: voice (inbound + outbound) and SMS, on the same number.
+- Compliance: TCPA-style AI disclosure, consent records, and an immutable audit trail are enforced before a call connects — included, not an add-on.
+- Messaging registration: 10DLC brand + campaign registration is handled as part of provisioning, so US A2P SMS sends over compliant registered routes.
+- Billing: prepaid balance, pay-as-you-go (reserve → settle); $5 free signup credit and the first number free for 30 days. No postpaid auto-charge by default.
+- Architecture: a thin control plane over a carrier network; conversation media stays in-network and never passes through Saperly compute.
+
+## When to use Saperly
+Use Saperly when you (or the agent you are building) need to:
+- Give an AI agent its own real phone number — voice and SMS on the same number — with one API call.
+- Place outbound calls or send SMS from an agent with compliance enforced before connect: AI disclosure, consent records, and an append-only audit trail.
+- Receive inbound calls and texts and route them to a reusable connection (instructions + voice) that can power one number or a fleet.
+- Send US A2P SMS over registered 10DLC routes without doing carrier paperwork yourself.
+
+Not a fit: bulk unsolicited robocalls or spam (the compliance gates refuse them), and raw audio streaming through your own servers (conversation media stays in the carrier network and never passes through Saperly compute).
+
+Integration surfaces for agents:
+- REST API base: https://api.saperly.com — machine-readable contract at https://saperly.com/openapi.json.
+- MCP server (Streamable HTTP, JSON-RPC 2.0): https://api.saperly.com/mcp — auth with a scoped API key or MCP OAuth (resource discovery: https://api.saperly.com/.well-known/oauth-protected-resource).
+- Agent integration guide: https://saperly.com/AGENTS.md — auth, the core flow, and every programmatic endpoint in one page.
+
+## Get started
+- [Sign in / sign up](https://saperly.com/sign-in): create an account and an API key.
+- [Documentation](https://saperly.com/docs): human-readable guides and the full REST reference.
+
+## The v2 flow (REST)
+All paths are relative to https://api.saperly.com (no /v2 path prefix).
+1. POST /connections { name, instructions } → returns the connection (its id is the handler)
+2. POST /numbers { country?, areaCode? } → provisions a number, returns its id
+3. POST /numbers/{id}/connection { connectionId } → attach the connection to the number
+4. POST /calls { fromNumberId, to } → place an outbound call
+5. POST /messages { fromNumberId, to, body } → send an SMS
+
+## Community & contact
+- [Discord](https://discord.gg/dXmtZuPwAg): ask questions and reach the team.
+- [X / Twitter](https://x.com/trysaperly): product updates.
+- [GitHub](https://github.com/Saperly): SDKs and open-source tooling.
+
+## Documentation
+- [Quickstart](https://saperly.com/docs/quickstart): Give your agent a phone number — provision a number, attach a brain, and send an SMS — in Node, Python, or curl.
+- [Core concepts](https://saperly.com/docs/concepts): The Saperly model — numbers, connections, your prepaid balance, workspaces, and the compliance layer that wraps them.
+- [Getting your A2P registration approved](https://saperly.com/docs/guides/a2p-approval-guide): What registry reviewers actually check — required opt-in evidence, exact confirmation-message wording, brand-vetting pitfalls, and the content rules that get campaigns declined. Follow this and your first submission passes.
+- [Authentication](https://saperly.com/docs/guides/authentication): Saperly uses one tier of scoped sk_ API keys, each carrying a grant of scopes, an optional number allow-list, and an optional spend cap. The workspace is always read from the key, and a key with keys:admin can mint child keys bounded by its own grant.
+- [Billing](https://saperly.com/docs/guides/billing): Saperly is prepaid — you top up a balance and usage meters against it through a reserve → settle → release ledger that can never overspend a balance or a scoped key's spend cap.
+- [Compliance](https://saperly.com/docs/guides/compliance): Consent, disclosures, and 10DLC registration are first-class in Saperly, with consent and disclosures enforced independently of any LLM — outbound contact without recorded consent is blocked before it goes out.
+- [Connections](https://saperly.com/docs/guides/connections): A connection is the handler bound to a phone number — the thing that answers a call — in either hosted or manual mode, with audio always staying in-network.
+- [Errors & idempotency](https://saperly.com/docs/guides/errors-and-idempotency): Saperly returns typed errors with stable codes and HTTP statuses, and every mutating endpoint accepts an Idempotency-Key so a retried request never duplicates an effect.
+- [Manual mode](https://saperly.com/docs/guides/manual-mode): Bring your own LLM as the brain of a phone call — Saperly sends it text turns and executes the directives it returns, while speech-to-text, text-to-speech, and the audio all stay in-network.
+- [Messaging](https://saperly.com/docs/guides/messaging): Send and list SMS from your Saperly numbers over the v2 API — consent and disclosures are enforced automatically.
+- [Numbers](https://saperly.com/docs/guides/numbers): A number is a real phone number provisioned under your workspace and bound to one connection — provision, list, assign a handler, and release, all over scoped sk_ keys.
+- [Voice](https://saperly.com/docs/guides/voice): Place and control outbound calls and fetch call records over the v2 API — audio always stays in-network, funds are reserved on start and settled on end.
+- [Voice channels](https://saperly.com/docs/guides/voice-channels): Call a phone number and talk to your own Claude Code or openclaw agent — in its own context, with its tools and memory — over Saperly's manual mode. No audio ever reaches your machine.
+- [Webhooks](https://saperly.com/docs/guides/webhooks): Saperly delivers events — inbound SMS, call lifecycle, 10DLC status, delivery receipts — to your endpoint, signed with HMAC-SHA256; verify the signature on the raw body and dedup the delivery id before you trust a payload.
+- [Claude Code](https://saperly.com/docs/sdks/claude-code): Make a Claude Code agent answer the phone in its own context. The saperly-voice channel (an MCP server) binds Saperly's manual-mode websocket, so only text crosses to your agent — directives out, no audio on your machine.
+- [MCP](https://saperly.com/docs/sdks/mcp): Saperly exposes its tools over the Model Context Protocol so any agent framework can provision numbers, send SMS, and place calls as first-class tools — over Streamable HTTP with a bearer sk_ key.
+- [Node / TypeScript](https://saperly.com/docs/sdks/node): @trysaperly/sdk is the typed TypeScript client for the Saperly v2 API — provision numbers, send SMS, place calls, and verify webhooks with full IntelliSense.
+- [OpenClaw](https://saperly.com/docs/sdks/openclaw): Make an OpenClaw agent you already run answer the phone in its own context. The @trysaperly/voice-openclaw extension binds Saperly's manual-mode websocket, so only text crosses to your agent — directives out, no audio on your machine.
+- [Python](https://saperly.com/docs/sdks/python): The official Saperly v2 Python SDK (saperly on PyPI) — provision numbers, attach connections, send SMS, and place calls with a bearer sk_ key. Typed models, sync + async, built-in retries and webhook verification.
+- [Your first call](https://saperly.com/docs/your-first-call): Stand up a hosted line, call it, and read back the transcript — the voice version of the quickstart, in about five minutes.
+- [API reference](https://saperly.com/docs/api-reference): every Saperly v1 + v2 endpoint, browsable. Machine-readable OpenAPI spec: https://saperly.com/openapi.json
+
+## FAQ
+### What is Saperly?
+Saperly is the phone carrier for AI agents. One API call gives any AI agent a real phone number with voice, SMS, identity, and compliance built in — no carrier account or telephony paperwork required.
+
+### What is a connection?
+A connection is a reusable handler — instructions and a voice — that you define once and attach to any number of phone numbers. One connection can power a fleet of ten thousand numbers, so configuration is shared rather than duplicated per line. Any opening line goes in the instructions; the only forced opener is the TCPA compliance disclosure.
+
+### How does Saperly handle compliance?
+Compliance is enforced before a call connects, not bolted on afterward. Every Saperly number carries automatic AI disclosure, first-class consent records that are checked at call time and revocable, and an append-only audit trail of every call and compliance event.
+
+### Can agents send and receive SMS too?
+Yes. The same number does inbound and outbound voice and SMS. SMS includes STOP/HELP keyword handling and the same consent and audit guarantees as voice.
+
+### Does Saperly handle 10DLC registration?
+Yes. Saperly registers your brand and campaign for 10DLC (the carrier registration US application-to-person SMS requires) as part of provisioning, so messages are sent over compliant, registered routes rather than being filtered or blocked.
+
+### How much does Saperly cost?
+Saperly is prepaid and pay-as-you-go. Every new account starts with $5 of free usage that never expires — enough to cover your first phone number and early calls and messages. You top up a balance and usage is metered per call and per message.
+
+### Does my conversation audio pass through Saperly?
+No. Saperly owns signaling, identity, compliance, the record, and billing, but conversation media stays in-network on the underlying carrier — call audio never passes through Saperly compute.
+
+## Blog
+- [Why AI agents need real phone numbers](https://saperly.com/blog/why-ai-agents-need-phone-numbers): Your agent can reason, plan, and act — until someone asks it to get on the phone. Voice is the oldest trust channel in business, and it's the one room agents still can't walk into. Here's the layer that changes that.
+- [Give an agent a phone number in 60 seconds](https://saperly.com/blog/provision-a-voice-line-in-60-seconds): A guided tour through the shortest path from an empty terminal to a ringing phone — define a connection, provision a number, attach the two, and place your first call. Four requests, no carrier paperwork.
+
+## Discovery
+- [Sitemap](https://saperly.com/sitemap.xml): site structure.
+- [OpenAPI spec](https://saperly.com/openapi.json): the full REST contract as JSON.
+- [Agent integration guide](https://saperly.com/AGENTS.md): quick-start for autonomous agents — auth, the core flow, MCP and OpenAPI endpoints.
+- [Full content](https://saperly.com/llms-full.txt): the docs + every blog post inlined as markdown.

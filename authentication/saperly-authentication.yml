@@ -1,0 +1,46 @@
+generated: '2026-10-07'
+method: searched
+source: https://saperly.com/docs/guides/authentication; https://saperly.com/docs/api-reference; https://saperly.com/docs/sdks/mcp;
+  https://api.saperly.com/.well-known/oauth-protected-resource and https://saperly.com/.well-known/oauth-authorization-server
+  (probed 2026-10-07). The OpenAPI contract declares no securitySchemes.
+docs: https://saperly.com/docs/guides/authentication
+schemes:
+- name: bearerApiKey
+  type: http
+  scheme: bearer
+  header: Authorization
+  key_prefix: sap_sk_live_
+  description: 'One tier of scoped API key. Every request sends Authorization: Bearer sap_sk_live_…; the key carries
+    scopes (read | write | admin), an optional number allow-list and an optional spend cap, and the workspace is
+    always resolved from the key, never from client input. Keys are created in the dashboard (Settings → Keys) or
+    minted as ceiling-bounded child keys by an admin-scoped key via POST /api-tokens; the plaintext token is returned
+    once.'
+  scopes:
+  - read
+  - write
+  - admin
+  applies_to: REST API and the MCP endpoint
+- name: mcpOAuth
+  type: oauth2
+  flow: authorizationCode
+  description: 'MCP OAuth 2.1 for https://api.saperly.com/mcp: RFC 9728 protected-resource metadata names https://saperly.com
+    as the authorization server; authorization code with PKCE S256, refresh tokens, dynamic client registration.'
+  authorization_url: https://saperly.com/api/auth/mcp/authorize
+  token_url: https://saperly.com/api/auth/mcp/token
+  registration_url: https://saperly.com/api/auth/mcp/register
+  jwks_uri: https://saperly.com/api/auth/mcp/jwks
+  pkce:
+  - S256
+  scopes:
+  - openid
+  - profile
+  - email
+  - offline_access
+  resource: https://api.saperly.com/mcp
+  applies_to: MCP endpoint only
+errors:
+  '401': Unauthorized — no bearer token on the request
+  '403': AuthorizationDenied — unrecognized, revoked, missing scope, or number outside the allow-list
+  '402': SpendLimitExceeded — the key's spend cap was hit at reserve time
+notes: Human dashboard members get abilities from their org role (owner/admin vs member) rather than a key grant.
+  No OAuth is offered for the REST API itself.

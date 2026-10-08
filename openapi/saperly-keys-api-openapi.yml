@@ -1,0 +1,409 @@
+openapi: 3.2.0
+info:
+  title: Saperly Keys API
+  version: 0.1.0
+  description: 'Operations tagged keys across 2 of this provider''s published API definitions: api-saperly-com-openapi.json, saperly-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: /
+  description: This worker
+- url: https://api.saperly.com
+  description: Production
+security: []
+tags:
+- name: Keys
+  description: 'Provision and manage scoped `sk_` API keys for the workspace. The workspace is always read from the calling key, never from client input. A key holding the `keys:admin` scope can mint child keys (and list/revoke the workspace''s keys), bounded by the parent ceiling: a child''s scopes, number allow-list, and spend cap must each be a subset of the minting key''s own grant.'
+paths:
+  /api-tokens:
+    get:
+      tags:
+      - Keys
+      operationId: keys.list
+      parameters: []
+      security: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    token:
+                      type: string
+                    prefix:
+                      type: string
+                    scopes:
+                      type: array
+                      items:
+                        type: string
+                        enum:
+                        - read
+                        - write
+                        - admin
+                    lastUsedAt:
+                      anyOf:
+                      - type: string
+                      - type: 'null'
+                    createdAt:
+                      type: string
+                    numberScope:
+                      anyOf:
+                      - anyOf:
+                        - type: array
+                          items:
+                            type: string
+                        - type: 'null'
+                      - type: 'null'
+                    spendLimitCents:
+                      anyOf:
+                      - anyOf:
+                        - type: number
+                        - type: 'null'
+                      - type: 'null'
+                    spendLimitResetPeriod:
+                      anyOf:
+                      - anyOf:
+                        - type: string
+                          enum:
+                          - monthly
+                        - type: 'null'
+                      - type: 'null'
+                    spentThisPeriodCents:
+                      anyOf:
+                      - anyOf:
+                        - type: number
+                        - type: 'null'
+                      - type: 'null'
+                    canProvisionKeys:
+                      anyOf:
+                      - type: boolean
+                      - type: 'null'
+                    permissions:
+                      anyOf:
+                      - type: array
+                        items:
+                          type: string
+                      - type: 'null'
+                    mintedByTokenId:
+                      anyOf:
+                      - anyOf:
+                        - type: string
+                        - type: 'null'
+                      - type: 'null'
+                  required:
+                  - id
+                  - name
+                  - token
+                  - prefix
+                  - scopes
+                  - lastUsedAt
+                  - createdAt
+                  additionalProperties: false
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '403':
+          description: AuthorizationDenied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthorizationDenied'
+        '429':
+          description: RateLimited
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimited'
+        '500':
+          description: InternalError
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+      summary: List the workspace's API keys
+    post:
+      tags:
+      - Keys
+      operationId: keys.mint
+      parameters: []
+      security: []
+      responses:
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+                  prefix:
+                    type: string
+                  scopes:
+                    type: array
+                    items:
+                      type: string
+                      enum:
+                      - read
+                      - write
+                      - admin
+                  lastUsedAt:
+                    anyOf:
+                    - type: string
+                    - type: 'null'
+                  createdAt:
+                    type: string
+                  token:
+                    type: string
+                required:
+                - id
+                - name
+                - prefix
+                - scopes
+                - lastUsedAt
+                - createdAt
+                - token
+                additionalProperties: false
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '403':
+          description: AuthorizationDenied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthorizationDenied'
+        '409':
+          description: IdempotencyConflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IdempotencyConflict'
+        '422':
+          description: IdempotencyKeyMismatch
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IdempotencyKeyMismatch'
+        '429':
+          description: RateLimited
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimited'
+        '500':
+          description: InternalError
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+      summary: Mint a scoped API key
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  allOf:
+                  - minLength: 1
+                  - maxLength: 100
+                scopes:
+                  type: array
+                  items:
+                    type: string
+                    enum:
+                    - read
+                    - write
+                    - admin
+                  allOf:
+                  - minItems: 1
+                  - maxItems: 3
+                numberScope:
+                  anyOf:
+                  - type: array
+                    items:
+                      type: string
+                  - type: 'null'
+                spendLimitCents:
+                  anyOf:
+                  - type: number
+                    allOf:
+                    - minimum: 1
+                  - type: 'null'
+                spendLimitResetPeriod:
+                  anyOf:
+                  - anyOf:
+                    - type: string
+                      enum:
+                      - monthly
+                    - type: 'null'
+                  - type: 'null'
+              required:
+              - name
+              - scopes
+              additionalProperties: false
+              description: 'The scoped grant for the new key: a coarse `scopes` set (what the key may do), an optional `numberScope` phone-number allow-list (omit or leave empty to allow every number in the workspace), and an optional per-key `spendLimitCents` cap with an optional `spendLimitResetPeriod` (monthly or lifetime). Each of these must stay within the minting key''s own ceiling. The plaintext key is returned exactly once, in the response to this call.'
+        required: true
+    servers:
+    - url: /
+      description: This worker
+  /api-tokens/{id}/revoke:
+    post:
+      tags:
+      - Keys
+      operationId: keys.revoke
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: string
+          description: The API key's id.
+        required: true
+      security: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum:
+                    - revoked
+                required:
+                - status
+                additionalProperties: false
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '403':
+          description: AuthorizationDenied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthorizationDenied'
+        '429':
+          description: RateLimited
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimited'
+        '500':
+          description: InternalError
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+      summary: Revoke an API key
+    servers:
+    - url: /
+      description: This worker
+components:
+  schemas:
+    RateLimited:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - RateLimited
+        bucket:
+          type: string
+          description: The rate-limit bucket that was exhausted.
+      required:
+      - _tag
+      - bucket
+      additionalProperties: false
+    Unauthorized:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - Unauthorized
+        message:
+          type: string
+          description: Why the request was rejected (missing, invalid, or insufficient credentials).
+      required:
+      - _tag
+      - message
+      additionalProperties: false
+    IdempotencyConflict:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - IdempotencyConflict
+        message:
+          type: string
+          description: Details of the conflict — a concurrent request is still processing under the same `Idempotency-Key`.
+      required:
+      - _tag
+      - message
+      additionalProperties: false
+    InternalError:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - InternalError
+        traceId:
+          type: string
+          description: A correlation id for this failure — quote it when reporting the problem so the request can be traced.
+      required:
+      - _tag
+      - traceId
+      additionalProperties: false
+    AuthorizationDenied:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - AuthorizationDenied
+        reason:
+          type: string
+      required:
+      - _tag
+      - reason
+      additionalProperties: false
+    IdempotencyKeyMismatch:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - IdempotencyKeyMismatch
+        message:
+          type: string
+          description: Why the `Idempotency-Key` is unprocessable — either malformed (e.g. over the length cap) or reused for a request with a different payload.
+      required:
+      - _tag
+      - message
+      additionalProperties: false
+x-refined-from:
+- api-saperly-com-openapi.json
+- saperly-openapi.yml

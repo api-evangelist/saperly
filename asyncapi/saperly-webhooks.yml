@@ -1,0 +1,79 @@
+generated: '2026-10-07'
+method: searched
+source: https://saperly.com/docs/guides/webhooks
+description: Saperly pushes events to a per-number HTTPS webhook (POST /numbers/{id}/webhook, operationId numbers.setWebhook)
+  or a workspace default set in the dashboard. Delivery is inline-first, then queued with retries and a dead-letter
+  queue. Every delivery is HMAC-SHA256 signed.
+configure:
+  operationId: numbers.setWebhook
+  path: POST /numbers/{id}/webhook
+  body:
+    url: https://…
+  workspace_default: dashboard Settings → Webhooks (delivery inspection, stats, test sends)
+envelope:
+  deliveryId: UUID v4
+  eventType: string
+  payload: object
+events:
+- name: call.received
+  when: An inbound call reached one of your numbers
+  payload:
+  - callId
+  - connectionId
+  - from
+  - to
+- name: call.completed
+  when: A call connected and then ended
+  payload:
+  - callId
+  - 'status: "completed"'
+  - durationSec
+  - costCents
+  - from
+  - to
+  - hangupCause?
+- name: call.failed
+  when: A call never connected — the callee did not answer, the carrier could not place it, or it was declined before
+    answer
+  payload:
+  - callId
+  - 'status: "no_answer" | "failed"'
+  - 'durationSec: 0'
+  - 'costCents: 0'
+  - from
+  - to
+  - hangupCause?
+- name: call.recording.saved
+  when: A call's recording is ready to fetch
+  payload:
+  - callId
+  - …
+- name: message.received
+  when: An inbound SMS reached one of your numbers
+  payload:
+  - messageId
+  - numberId
+  - to
+  - from
+  - body
+also_documented: 10DLC status updates and delivery receipts arrive via webhook (named in prose on the webhooks and
+  compliance guides; payloads not tabulated)
+signature:
+  algorithm: HMAC-SHA256
+  header: x-saperly-signature
+  format: v1=<hex>
+  signed_payload: '`${timestamp}.${rawBody}`'
+  timestamp_header: x-saperly-timestamp
+  delivery_id_header: x-saperly-delivery-id
+  verification: recompute over the raw bytes, constant-time compare, reject stale timestamps, dedup on x-saperly-delivery-id
+    for at least 5 minutes
+  sdk: '@trysaperly/sdk verifyWebhook(rawBody, secret, headers); the Python SDK ships webhook verification'
+delivery:
+  first_attempt: inline (synchronous)
+  retries: queued and retried on non-2xx or timeout
+  dead_letter: deliveries that exhaust their retries land in a dead-letter queue
+  acknowledge: return a 2xx quickly
+  terminal_guarantee: exactly one terminal event (call.completed or call.failed) per call; a call refused before
+    attempt (insufficient balance) produces no event
+asyncapi: null
+asyncapi_note: No AsyncAPI document is published; the provider's webhook catalog is captured here from the docs.

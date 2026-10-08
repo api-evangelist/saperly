@@ -1,0 +1,48 @@
+generated: '2026-10-07'
+method: searched
+source: https://saperly.com/
+name: Saperly pricing
+audience: developer-api
+pricing_basis: usage-other
+published: true
+currency: USD
+delivery:
+  delivery: managed
+  free_edition: null
+  managed_tier: null
+  open_source_license: null
+plan_count: 2
+plans:
+- name: Pay as you go
+  price_text: $0.13/min webhook voice · $0.26/min hosted, flat to any country
+  price: usage-based
+  billing: prepaid balance, usage metered per call, per message and per number; no monthly invoice
+  features:
+  - $5 signup credit · No card to start · Credit never expires
+  - SMS from $0.02/segment per segment, inbound included
+  - Phone numbers from $2/month, covered by your $5 credit to start
+  - One connection config, reused across every number
+  - 'Compliance built in: disclosure, consent, audit trail'
+  limits: []
+  rates:
+  - name: Voice
+    rate_text: 'Voice: $0.13/min webhook, $0.26/min hosted. One flat rate to any destination.'
+  - name: SMS
+    rate_text: 'SMS: $0.02/segment US/CA, $0.03/segment UK/EU/AU/JP/IL, $0.05/segment MX/BR/ZA, per segment. Inbound
+      included.'
+  - name: Numbers
+    rate_text: 'Numbers: from $2/month per number, by country. Your $5 credit covers the first.'
+  - name: 10DLC
+    rate_text: '10DLC: US messaging registration handled for you. Carrier fees apply.'
+- name: Contact us
+  price_text: Custom pricing · Enterprise terms
+  price: Contact sales
+  features:
+  - Volume pricing across voice + SMS
+  - Custom MSA + Net-30/60
+  - Dedicated number pools
+  - Priority support + SLAs
+  - Dedicated Slack channel
+  limits: []
+notes: Prepaid, pay-as-you-go; per-number prices are quoted live by GET /pricing/quote (customerMonthlyCents, customerUpfrontCents).
+  The /pricing path serves the same page as the homepage.

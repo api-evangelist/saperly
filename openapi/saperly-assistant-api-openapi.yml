@@ -1,0 +1,143 @@
+openapi: 3.2.0
+info:
+  title: Saperly Assistant API
+  version: 0.1.0
+  description: 'Operations tagged assistant across 2 of this provider''s published API definitions: api-saperly-com-openapi.json, saperly-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: /
+  description: This worker
+- url: https://api.saperly.com
+  description: Production
+security: []
+tags:
+- name: Assistant
+  description: Ask the built-in workspace assistant a natural-language question and get a text answer back. Backed by an in-network model; availability depends on the operator configuration.
+paths:
+  /assistant/answer:
+    post:
+      tags:
+      - Assistant
+      operationId: assistant.answer
+      parameters: []
+      security: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  answer:
+                    type: string
+                  provider:
+                    type: string
+                    enum:
+                    - workers-ai
+                    - openai-compatible
+                    - mock
+                  modelId:
+                    type: string
+                  usedTools:
+                    type: array
+                    items:
+                      type: string
+                  assistantConfigured:
+                    type: boolean
+                required:
+                - answer
+                - provider
+                - modelId
+                - usedTools
+                - assistantConfigured
+                additionalProperties: false
+        '429':
+          description: RateLimited
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimited'
+        '500':
+          description: InternalError
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+        '503':
+          description: AssistantUnavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssistantUnavailable'
+      summary: Ask the workspace assistant a question
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                workspaceSlug:
+                  type: string
+                  allOf:
+                  - minLength: 1
+                  - maxLength: 100
+                question:
+                  type: string
+                  allOf:
+                  - minLength: 1
+                  - maxLength: 2000
+              required:
+              - workspaceSlug
+              - question
+              additionalProperties: false
+              description: The workspace to answer for (`workspaceSlug`) and the natural-language `question` to answer.
+        required: true
+    servers:
+    - url: /
+      description: This worker
+components:
+  schemas:
+    AssistantUnavailable:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - AssistantUnavailable
+        reason:
+          type: string
+      required:
+      - _tag
+      - reason
+      additionalProperties: false
+    RateLimited:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - RateLimited
+        bucket:
+          type: string
+          description: The rate-limit bucket that was exhausted.
+      required:
+      - _tag
+      - bucket
+      additionalProperties: false
+    InternalError:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - InternalError
+        traceId:
+          type: string
+          description: A correlation id for this failure — quote it when reporting the problem so the request can be traced.
+      required:
+      - _tag
+      - traceId
+      additionalProperties: false
+x-refined-from:
+- api-saperly-com-openapi.json
+- saperly-openapi.yml

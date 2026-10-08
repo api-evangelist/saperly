@@ -1,0 +1,1753 @@
+openapi: 3.2.0
+info:
+  title: Saperly Connections API
+  version: 0.1.0
+  description: 'Operations tagged connections across 2 of this provider''s published API definitions: api-saperly-com-openapi.json, saperly-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: /
+  description: This worker
+- url: https://api.saperly.com
+  description: Production
+security: []
+tags:
+- name: Connections
+  description: Connections — the handler bound to a phone number that answers and talks. Hosted lines run an in-network voice assistant (pick the model, voice, language, and MCP tools); manual lines forward turns to your own brain. Audio always stays in-network.
+paths:
+  /connections:
+    get:
+      tags:
+      - Connections
+      operationId: connections.list
+      parameters: []
+      security: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    mode:
+                      type: string
+                      enum:
+                      - hosted
+                      - manual
+                    instructions:
+                      type: string
+                    llm:
+                      anyOf:
+                      - type: object
+                        properties:
+                          kind:
+                            type: string
+                            enum:
+                            - managed
+                          model:
+                            type: string
+                        required:
+                        - kind
+                        - model
+                        additionalProperties: false
+                      - type: 'null'
+                    backgroundAudio:
+                      anyOf:
+                      - anyOf:
+                        - type: object
+                          properties:
+                            type:
+                              type: string
+                              enum:
+                              - 'off'
+                          required:
+                          - type
+                          additionalProperties: false
+                        - type: object
+                          properties:
+                            type:
+                              type: string
+                              enum:
+                              - office
+                            volume:
+                              anyOf:
+                              - anyOf:
+                                - type: number
+                                - type: string
+                                  enum:
+                                  - NaN
+                                - type: string
+                                  enum:
+                                  - Infinity
+                                - type: string
+                                  enum:
+                                  - -Infinity
+                              - type: string
+                                enum:
+                                - Infinity
+                                - -Infinity
+                                - NaN
+                          required:
+                          - type
+                          - volume
+                          additionalProperties: false
+                      - type: 'null'
+                    language:
+                      anyOf:
+                      - type: string
+                      - type: 'null'
+                    mcpServers:
+                      anyOf:
+                      - type: array
+                        items:
+                          type: object
+                          properties:
+                            url:
+                              type: string
+                            auth:
+                              anyOf:
+                              - type: object
+                                properties:
+                                  type:
+                                    type: string
+                                    enum:
+                                    - bearer
+                                    - none
+                                  token:
+                                    anyOf:
+                                    - type: string
+                                    - type: 'null'
+                                required:
+                                - type
+                                additionalProperties: false
+                              - type: 'null'
+                            allowedTools:
+                              anyOf:
+                              - type: array
+                                items:
+                                  type: string
+                              - type: 'null'
+                          required:
+                          - url
+                          additionalProperties: false
+                      - type: 'null'
+                    callControl:
+                      anyOf:
+                      - type: object
+                        properties:
+                          endCall:
+                            anyOf:
+                            - type: boolean
+                            - type: 'null'
+                          sendDtmf:
+                            anyOf:
+                            - type: boolean
+                            - type: 'null'
+                          transfer:
+                            anyOf:
+                            - type: object
+                              properties:
+                                targets:
+                                  type: array
+                                  items:
+                                    type: string
+                                from:
+                                  anyOf:
+                                  - type: string
+                                  - type: 'null'
+                              required:
+                              - targets
+                              additionalProperties: false
+                            - type: 'null'
+                        additionalProperties: false
+                      - type: 'null'
+                    complianceEnabled:
+                      type: boolean
+                    smsAutoReply:
+                      type: boolean
+                    disclosure:
+                      type: string
+                    recordingEnabled:
+                      type: boolean
+                    openaiRealtime:
+                      anyOf:
+                      - type: object
+                        properties:
+                          model:
+                            type: string
+                          voice:
+                            anyOf:
+                            - type: string
+                            - type: 'null'
+                        required:
+                        - model
+                        additionalProperties: false
+                      - type: 'null'
+                    manualSecret:
+                      anyOf:
+                      - type: string
+                      - type: 'null'
+                    manualWebhookUrl:
+                      anyOf:
+                      - type: string
+                      - type: 'null'
+                    createdAt:
+                      type: string
+                    backend:
+                      type: string
+                      enum:
+                      - network
+                      - openai_realtime
+                    tts:
+                      anyOf:
+                      - type: object
+                        properties:
+                          voiceId:
+                            type: string
+                        required:
+                        - voiceId
+                        additionalProperties: false
+                      - type: 'null'
+                  required:
+                  - id
+                  - name
+                  - mode
+                  - instructions
+                  - llm
+                  - language
+                  - mcpServers
+                  - callControl
+                  - complianceEnabled
+                  - smsAutoReply
+                  - disclosure
+                  - recordingEnabled
+                  - openaiRealtime
+                  - manualSecret
+                  - manualWebhookUrl
+                  - createdAt
+                  - backend
+                  - tts
+                  additionalProperties: false
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '403':
+          description: AuthorizationDenied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthorizationDenied'
+        '429':
+          description: RateLimited
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimited'
+        '500':
+          description: InternalError
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+      summary: List all connections in the workspace
+    post:
+      tags:
+      - Connections
+      operationId: connections.create
+      parameters: []
+      security: []
+      responses:
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+                  mode:
+                    type: string
+                    enum:
+                    - hosted
+                    - manual
+                  instructions:
+                    type: string
+                  llm:
+                    anyOf:
+                    - type: object
+                      properties:
+                        kind:
+                          type: string
+                          enum:
+                          - managed
+                        model:
+                          type: string
+                      required:
+                      - kind
+                      - model
+                      additionalProperties: false
+                    - type: 'null'
+                  backgroundAudio:
+                    anyOf:
+                    - anyOf:
+                      - type: object
+                        properties:
+                          type:
+                            type: string
+                            enum:
+                            - 'off'
+                        required:
+                        - type
+                        additionalProperties: false
+                      - type: object
+                        properties:
+                          type:
+                            type: string
+                            enum:
+                            - office
+                          volume:
+                            anyOf:
+                            - anyOf:
+                              - type: number
+                              - type: string
+                                enum:
+                                - NaN
+                              - type: string
+                                enum:
+                                - Infinity
+                              - type: string
+                                enum:
+                                - -Infinity
+                            - type: string
+                              enum:
+                              - Infinity
+                              - -Infinity
+                              - NaN
+                        required:
+                        - type
+                        - volume
+                        additionalProperties: false
+                    - type: 'null'
+                  language:
+                    anyOf:
+                    - type: string
+                    - type: 'null'
+                  mcpServers:
+                    anyOf:
+                    - type: array
+                      items:
+                        type: object
+                        properties:
+                          url:
+                            type: string
+                          auth:
+                            anyOf:
+                            - type: object
+                              properties:
+                                type:
+                                  type: string
+                                  enum:
+                                  - bearer
+                                  - none
+                                token:
+                                  anyOf:
+                                  - type: string
+                                  - type: 'null'
+                              required:
+                              - type
+                              additionalProperties: false
+                            - type: 'null'
+                          allowedTools:
+                            anyOf:
+                            - type: array
+                              items:
+                                type: string
+                            - type: 'null'
+                        required:
+                        - url
+                        additionalProperties: false
+                    - type: 'null'
+                  callControl:
+                    anyOf:
+                    - type: object
+                      properties:
+                        endCall:
+                          anyOf:
+                          - type: boolean
+                          - type: 'null'
+                        sendDtmf:
+                          anyOf:
+                          - type: boolean
+                          - type: 'null'
+                        transfer:
+                          anyOf:
+                          - type: object
+                            properties:
+                              targets:
+                                type: array
+                                items:
+                                  type: string
+                              from:
+                                anyOf:
+                                - type: string
+                                - type: 'null'
+                            required:
+                            - targets
+                            additionalProperties: false
+                          - type: 'null'
+                      additionalProperties: false
+                    - type: 'null'
+                  complianceEnabled:
+                    type: boolean
+                  smsAutoReply:
+                    type: boolean
+                  disclosure:
+                    type: string
+                  recordingEnabled:
+                    type: boolean
+                  openaiRealtime:
+                    anyOf:
+                    - type: object
+                      properties:
+                        model:
+                          type: string
+                        voice:
+                          anyOf:
+                          - type: string
+                          - type: 'null'
+                      required:
+                      - model
+                      additionalProperties: false
+                    - type: 'null'
+                  manualSecret:
+                    anyOf:
+                    - type: string
+                    - type: 'null'
+                  manualWebhookUrl:
+                    anyOf:
+                    - type: string
+                    - type: 'null'
+                  createdAt:
+                    type: string
+                  backend:
+                    type: string
+                    enum:
+                    - network
+                    - openai_realtime
+                  tts:
+                    anyOf:
+                    - type: object
+                      properties:
+                        voiceId:
+                          type: string
+                      required:
+                      - voiceId
+                      additionalProperties: false
+                    - type: 'null'
+                required:
+                - id
+                - name
+                - mode
+                - instructions
+                - llm
+                - language
+                - mcpServers
+                - callControl
+                - complianceEnabled
+                - smsAutoReply
+                - disclosure
+                - recordingEnabled
+                - openaiRealtime
+                - manualSecret
+                - manualWebhookUrl
+                - createdAt
+                - backend
+                - tts
+                additionalProperties: false
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '403':
+          description: AuthorizationDenied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthorizationDenied'
+        '409':
+          description: IdempotencyConflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IdempotencyConflict'
+        '422':
+          description: IdempotencyKeyMismatch | UnsupportedModel | UnsupportedVoice | AudioConfigurationError
+          content:
+            application/json:
+              schema:
+                anyOf:
+                - $ref: '#/components/schemas/IdempotencyKeyMismatch'
+                - $ref: '#/components/schemas/UnsupportedModel'
+                - $ref: '#/components/schemas/UnsupportedVoice'
+                - $ref: '#/components/schemas/AudioConfigurationError'
+        '429':
+          description: RateLimited
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimited'
+        '500':
+          description: InternalError
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+        '502':
+          description: UpstreamError
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpstreamError'
+      summary: Create a connection (provisions inline)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  allOf:
+                  - minLength: 1
+                  - maxLength: 120
+                    description: A human-readable name for the connection (1–120 characters).
+                mode:
+                  anyOf:
+                  - type: string
+                    enum:
+                    - hosted
+                    - manual
+                    description: 'How the line is handled. ''hosted'' (default): an in-network voice assistant (cascade STT → LLM → TTS) is the brain. ''manual'': your own LLM is the brain — Saperly forwards text turns and executes the directives you return. Audio stays in-network in both modes.'
+                  - type: 'null'
+                backend:
+                  anyOf:
+                  - type: string
+                    enum:
+                    - network
+                    - openai_realtime
+                    description: The hosted brain backend. Today only 'network' (an in-network voice assistant) is available; 'openai_realtime' is disabled and rejected on create/update.
+                  - type: 'null'
+                instructions:
+                  anyOf:
+                  - type: string
+                    description: The system prompt that defines the assistant's behavior. Put any opening line here — there is no separate greeting field.
+                  - type: 'null'
+                llm:
+                  anyOf:
+                  - type: object
+                    properties:
+                      kind:
+                        type: string
+                        enum:
+                        - managed
+                        description: Always 'managed' — the hosted assistant runs the model in-network.
+                      model:
+                        type: string
+                        description: The in-network managed model the hosted assistant runs, e.g. "openai/gpt-4o".
+                    required:
+                    - kind
+                    - model
+                    additionalProperties: false
+                    description: The model the hosted assistant runs. Omit to use the managed default. Hosted mode only.
+                  - type: 'null'
+                tts:
+                  anyOf:
+                  - type: object
+                    properties:
+                      provider:
+                        anyOf:
+                        - type: string
+                          description: The text-to-speech provider. Optional — defaults to the in-network provider, which is all you normally need.
+                        - type: 'null'
+                      voiceId:
+                        type: string
+                        description: The voice the hosted assistant speaks with. Use an `id` returned by `GET /voices` (optionally filtered by `?language=`). Hosted mode only.
+                    required:
+                    - voiceId
+                    additionalProperties: false
+                    description: 'The hosted assistant''s text-to-speech voice. Omit `tts` to use the managed default voice; otherwise `{ "voiceId": "<id from GET /voices>" }` is enough.'
+                  - type: 'null'
+                backgroundAudio:
+                  anyOf:
+                  - anyOf:
+                    - type: object
+                      properties:
+                        type:
+                          type: string
+                          enum:
+                          - 'off'
+                      required:
+                      - type
+                      additionalProperties: false
+                    - type: object
+                      properties:
+                        type:
+                          type: string
+                          enum:
+                          - office
+                        volume:
+                          anyOf:
+                          - anyOf:
+                            - type: number
+                            - type: string
+                              enum:
+                              - NaN
+                            - type: string
+                              enum:
+                              - Infinity
+                            - type: string
+                              enum:
+                              - -Infinity
+                          - type: string
+                            enum:
+                            - Infinity
+                            - -Infinity
+                            - NaN
+                      required:
+                      - type
+                      - volume
+                      additionalProperties: false
+                  - type: 'null'
+                language:
+                  anyOf:
+                  - type: string
+                    description: The spoken language as a BCP-47 tag (e.g. "en", "es", "en-US"). On hosted lines it is the in-network transcription hint — which language the caller speaks (pair it with a voice that speaks the same language, and instruct the model to reply in it). On manual lines it is the Conversation Relay language, steering in-network transcription AND the spoken voice. Discover the supported set from `GET /languages` (or filter `GET /voices` by language); any well-formed tag is accepted. Send "" to clear it (auto-detect).
+                  - type: 'null'
+                mcpServers:
+                  anyOf:
+                  - type: array
+                    items:
+                      type: object
+                      properties:
+                        url:
+                          type: string
+                          description: Public `https://` URL of your streamable-HTTP MCP server (commonly ending in `/mcp`). SSE-only servers are not supported.
+                        auth:
+                          anyOf:
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                                enum:
+                                - bearer
+                                - none
+                              token:
+                                anyOf:
+                                - type: string
+                                  description: 'Bearer token sent as `Authorization: Bearer <token>` on every request to your server. Required when `type` is ''bearer''; stored encrypted and never returned in reads.'
+                                - type: 'null'
+                            required:
+                            - type
+                            additionalProperties: false
+                            description: 'How Saperly authenticates to your MCP server. Use { type: ''none'' } (or omit `auth`) for an open server.'
+                          - type: 'null'
+                        allowedTools:
+                          anyOf:
+                          - type: array
+                            items:
+                              type: string
+                            description: Allow-list of tool names to expose to the assistant. Omit to expose every tool the server advertises.
+                          - type: 'null'
+                      required:
+                      - url
+                      additionalProperties: false
+                      description: A Model Context Protocol server the hosted assistant may call as tools mid-conversation. Hosted mode only.
+                    description: MCP servers the hosted assistant may call as tools during a conversation. Hosted mode only.
+                  - type: 'null'
+                callControl:
+                  anyOf:
+                  - type: object
+                    properties:
+                      endCall:
+                        anyOf:
+                        - type: boolean
+                          description: Allow the brain to hang up the call. Defaults on.
+                        - type: 'null'
+                      sendDtmf:
+                        anyOf:
+                        - type: boolean
+                          description: Allow the brain to send DTMF (touch-tone) digits. Defaults on.
+                        - type: 'null'
+                      transfer:
+                        anyOf:
+                        - type: object
+                          properties:
+                            targets:
+                              type: array
+                              items:
+                                type: string
+                              description: Allowed blind-transfer destinations (E.164 numbers or `sip:` URIs). Transfer only takes effect with at least one target.
+                            from:
+                              anyOf:
+                              - type: string
+                                description: Optional caller ID to present on the transferred leg.
+                              - type: 'null'
+                          required:
+                          - targets
+                          additionalProperties: false
+                          description: Blind-transfer enablement and its allowed targets.
+                        - type: 'null'
+                    additionalProperties: false
+                    description: Which call-control actions the connection's brain may take, projected to whichever backend handles the call. Omitted fields fall back to defaults (end-call + DTMF on, transfer off).
+                  - type: 'null'
+                complianceEnabled:
+                  anyOf:
+                  - type: boolean
+                    description: When true (the default), the do-not-message tool is exposed and `disclosure` is spoken as the line's first, uninterruptible utterance (the TCPA notice). When on with no `disclosure`, a standard org-named default is filled in.
+                  - type: 'null'
+                smsAutoReply:
+                  anyOf:
+                  - type: boolean
+                    description: Hosted-line opt-in to auto-answer inbound SMS with the model. Defaults off. (Manual lines forward to their webhook brain regardless.)
+                  - type: 'null'
+                disclosure:
+                  anyOf:
+                  - type: string
+                    description: The TCPA notice spoken first, uninterruptibly, when `complianceEnabled` is on. Leave empty with compliance on and Saperly fills a standard org-named default.
+                  - type: 'null'
+                openaiRealtime:
+                  anyOf:
+                  - type: object
+                    properties:
+                      model:
+                        type: string
+                        description: The OpenAI Realtime model id.
+                      voice:
+                        anyOf:
+                        - type: string
+                          description: The OpenAI Realtime voice. Distinct from the hosted `tts.voiceId` — this names a built-in OpenAI Realtime voice.
+                        - type: 'null'
+                    required:
+                    - model
+                    additionalProperties: false
+                    description: Config for the OpenAI-Realtime hosted backend. Only meaningful when `backend` is 'openai_realtime' (currently disabled). The OpenAI project is operator-hosted and not settable here.
+                  - type: 'null'
+                manualWebhookUrl:
+                  anyOf:
+                  - type: string
+                    description: 'Manual-mode webhook-brain URL: where Saperly POSTs each turn (signed with the connection''s `manualSecret`) when no live agent socket is connected. Only meaningful for manual mode; send "" to clear it.'
+                  - type: 'null'
+              required:
+              - name
+              additionalProperties: false
+              description: Create a connection — the handler bound to a phone number. Hosted lines configure an in-network assistant (model, voice, language, MCP tools); manual lines forward turns to your own brain.
+        required: true
+    servers:
+    - url: /
+      description: This worker
+  /connections/{id}:
+    get:
+      tags:
+      - Connections
+      operationId: connections.get
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: string
+          description: The connection's id.
+        required: true
+      security: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+                  mode:
+                    type: string
+                    enum:
+                    - hosted
+                    - manual
+                  instructions:
+                    type: string
+                  llm:
+                    anyOf:
+                    - type: object
+                      properties:
+                        kind:
+                          type: string
+                          enum:
+                          - managed
+                        model:
+                          type: string
+                      required:
+                      - kind
+                      - model
+                      additionalProperties: false
+                    - type: 'null'
+                  backgroundAudio:
+                    anyOf:
+                    - anyOf:
+                      - type: object
+                        properties:
+                          type:
+                            type: string
+                            enum:
+                            - 'off'
+                        required:
+                        - type
+                        additionalProperties: false
+                      - type: object
+                        properties:
+                          type:
+                            type: string
+                            enum:
+                            - office
+                          volume:
+                            anyOf:
+                            - anyOf:
+                              - type: number
+                              - type: string
+                                enum:
+                                - NaN
+                              - type: string
+                                enum:
+                                - Infinity
+                              - type: string
+                                enum:
+                                - -Infinity
+                            - type: string
+                              enum:
+                              - Infinity
+                              - -Infinity
+                              - NaN
+                        required:
+                        - type
+                        - volume
+                        additionalProperties: false
+                    - type: 'null'
+                  language:
+                    anyOf:
+                    - type: string
+                    - type: 'null'
+                  mcpServers:
+                    anyOf:
+                    - type: array
+                      items:
+                        type: object
+                        properties:
+                          url:
+                            type: string
+                          auth:
+                            anyOf:
+                            - type: object
+                              properties:
+                                type:
+                                  type: string
+                                  enum:
+                                  - bearer
+                                  - none
+                                token:
+                                  anyOf:
+                                  - type: string
+                                  - type: 'null'
+                              required:
+                              - type
+                              additionalProperties: false
+                            - type: 'null'
+                          allowedTools:
+                            anyOf:
+                            - type: array
+                              items:
+                                type: string
+                            - type: 'null'
+                        required:
+                        - url
+                        additionalProperties: false
+                    - type: 'null'
+                  callControl:
+                    anyOf:
+                    - type: object
+                      properties:
+                        endCall:
+                          anyOf:
+                          - type: boolean
+                          - type: 'null'
+                        sendDtmf:
+                          anyOf:
+                          - type: boolean
+                          - type: 'null'
+                        transfer:
+                          anyOf:
+                          - type: object
+                            properties:
+                              targets:
+                                type: array
+                                items:
+                                  type: string
+                              from:
+                                anyOf:
+                                - type: string
+                                - type: 'null'
+                            required:
+                            - targets
+                            additionalProperties: false
+                          - type: 'null'
+                      additionalProperties: false
+                    - type: 'null'
+                  complianceEnabled:
+                    type: boolean
+                  smsAutoReply:
+                    type: boolean
+                  disclosure:
+                    type: string
+                  recordingEnabled:
+                    type: boolean
+                  openaiRealtime:
+                    anyOf:
+                    - type: object
+                      properties:
+                        model:
+                          type: string
+                        voice:
+                          anyOf:
+                          - type: string
+                          - type: 'null'
+                      required:
+                      - model
+                      additionalProperties: false
+                    - type: 'null'
+                  manualSecret:
+                    anyOf:
+                    - type: string
+                    - type: 'null'
+                  manualWebhookUrl:
+                    anyOf:
+                    - type: string
+                    - type: 'null'
+                  createdAt:
+                    type: string
+                  backend:
+                    type: string
+                    enum:
+                    - network
+                    - openai_realtime
+                  tts:
+                    anyOf:
+                    - type: object
+                      properties:
+                        voiceId:
+                          type: string
+                      required:
+                      - voiceId
+                      additionalProperties: false
+                    - type: 'null'
+                required:
+                - id
+                - name
+                - mode
+                - instructions
+                - llm
+                - language
+                - mcpServers
+                - callControl
+                - complianceEnabled
+                - smsAutoReply
+                - disclosure
+                - recordingEnabled
+                - openaiRealtime
+                - manualSecret
+                - manualWebhookUrl
+                - createdAt
+                - backend
+                - tts
+                additionalProperties: false
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '403':
+          description: AuthorizationDenied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthorizationDenied'
+        '404':
+          description: ConnectionNotFound
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConnectionNotFound'
+        '429':
+          description: RateLimited
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimited'
+        '500':
+          description: InternalError
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+      summary: Get a connection by id
+    patch:
+      tags:
+      - Connections
+      operationId: connections.update
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: string
+          description: The connection's id.
+        required: true
+      security: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+                  mode:
+                    type: string
+                    enum:
+                    - hosted
+                    - manual
+                  instructions:
+                    type: string
+                  llm:
+                    anyOf:
+                    - type: object
+                      properties:
+                        kind:
+                          type: string
+                          enum:
+                          - managed
+                        model:
+                          type: string
+                      required:
+                      - kind
+                      - model
+                      additionalProperties: false
+                    - type: 'null'
+                  backgroundAudio:
+                    anyOf:
+                    - anyOf:
+                      - type: object
+                        properties:
+                          type:
+                            type: string
+                            enum:
+                            - 'off'
+                        required:
+                        - type
+                        additionalProperties: false
+                      - type: object
+                        properties:
+                          type:
+                            type: string
+                            enum:
+                            - office
+                          volume:
+                            anyOf:
+                            - anyOf:
+                              - type: number
+                              - type: string
+                                enum:
+                                - NaN
+                              - type: string
+                                enum:
+                                - Infinity
+                              - type: string
+                                enum:
+                                - -Infinity
+                            - type: string
+                              enum:
+                              - Infinity
+                              - -Infinity
+                              - NaN
+                        required:
+                        - type
+                        - volume
+                        additionalProperties: false
+                    - type: 'null'
+                  language:
+                    anyOf:
+                    - type: string
+                    - type: 'null'
+                  mcpServers:
+                    anyOf:
+                    - type: array
+                      items:
+                        type: object
+                        properties:
+                          url:
+                            type: string
+                          auth:
+                            anyOf:
+                            - type: object
+                              properties:
+                                type:
+                                  type: string
+                                  enum:
+                                  - bearer
+                                  - none
+                                token:
+                                  anyOf:
+                                  - type: string
+                                  - type: 'null'
+                              required:
+                              - type
+                              additionalProperties: false
+                            - type: 'null'
+                          allowedTools:
+                            anyOf:
+                            - type: array
+                              items:
+                                type: string
+                            - type: 'null'
+                        required:
+                        - url
+                        additionalProperties: false
+                    - type: 'null'
+                  callControl:
+                    anyOf:
+                    - type: object
+                      properties:
+                        endCall:
+                          anyOf:
+                          - type: boolean
+                          - type: 'null'
+                        sendDtmf:
+                          anyOf:
+                          - type: boolean
+                          - type: 'null'
+                        transfer:
+                          anyOf:
+                          - type: object
+                            properties:
+                              targets:
+                                type: array
+                                items:
+                                  type: string
+                              from:
+                                anyOf:
+                                - type: string
+                                - type: 'null'
+                            required:
+                            - targets
+                            additionalProperties: false
+                          - type: 'null'
+                      additionalProperties: false
+                    - type: 'null'
+                  complianceEnabled:
+                    type: boolean
+                  smsAutoReply:
+                    type: boolean
+                  disclosure:
+                    type: string
+                  recordingEnabled:
+                    type: boolean
+                  openaiRealtime:
+                    anyOf:
+                    - type: object
+                      properties:
+                        model:
+                          type: string
+                        voice:
+                          anyOf:
+                          - type: string
+                          - type: 'null'
+                      required:
+                      - model
+                      additionalProperties: false
+                    - type: 'null'
+                  manualSecret:
+                    anyOf:
+                    - type: string
+                    - type: 'null'
+                  manualWebhookUrl:
+                    anyOf:
+                    - type: string
+                    - type: 'null'
+                  createdAt:
+                    type: string
+                  backend:
+                    type: string
+                    enum:
+                    - network
+                    - openai_realtime
+                  tts:
+                    anyOf:
+                    - type: object
+                      properties:
+                        voiceId:
+                          type: string
+                      required:
+                      - voiceId
+                      additionalProperties: false
+                    - type: 'null'
+                required:
+                - id
+                - name
+                - mode
+                - instructions
+                - llm
+                - language
+                - mcpServers
+                - callControl
+                - complianceEnabled
+                - smsAutoReply
+                - disclosure
+                - recordingEnabled
+                - openaiRealtime
+                - manualSecret
+                - manualWebhookUrl
+                - createdAt
+                - backend
+                - tts
+                additionalProperties: false
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '403':
+          description: AuthorizationDenied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthorizationDenied'
+        '404':
+          description: ConnectionNotFound
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConnectionNotFound'
+        '422':
+          description: UnsupportedModel | UnsupportedVoice | AudioConfigurationError
+          content:
+            application/json:
+              schema:
+                anyOf:
+                - $ref: '#/components/schemas/UnsupportedModel'
+                - $ref: '#/components/schemas/UnsupportedVoice'
+                - $ref: '#/components/schemas/AudioConfigurationError'
+        '429':
+          description: RateLimited
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimited'
+        '500':
+          description: InternalError
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+        '502':
+          description: UpstreamError
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpstreamError'
+      summary: Update a connection (re-syncs the carrier)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  anyOf:
+                  - type: string
+                    allOf:
+                    - minLength: 1
+                    - maxLength: 120
+                      description: A human-readable name for the connection (1–120 characters).
+                  - type: 'null'
+                mode:
+                  anyOf:
+                  - type: string
+                    enum:
+                    - hosted
+                    - manual
+                    description: 'How the line is handled. ''hosted'' (default): an in-network voice assistant (cascade STT → LLM → TTS) is the brain. ''manual'': your own LLM is the brain — Saperly forwards text turns and executes the directives you return. Audio stays in-network in both modes.'
+                  - type: 'null'
+                backend:
+                  anyOf:
+                  - type: string
+                    enum:
+                    - network
+                    - openai_realtime
+                    description: The hosted brain backend. Today only 'network' is available; 'openai_realtime' is disabled and rejected.
+                  - type: 'null'
+                instructions:
+                  anyOf:
+                  - type: string
+                    description: The system prompt that defines the assistant's behavior.
+                  - type: 'null'
+                llm:
+                  anyOf:
+                  - type: object
+                    properties:
+                      kind:
+                        type: string
+                        enum:
+                        - managed
+                        description: Always 'managed' — the hosted assistant runs the model in-network.
+                      model:
+                        type: string
+                        description: The in-network managed model the hosted assistant runs, e.g. "openai/gpt-4o".
+                    required:
+                    - kind
+                    - model
+                    additionalProperties: false
+                    description: The model the hosted assistant runs. Omit to use the managed default. Hosted mode only.
+                  - type: 'null'
+                tts:
+                  anyOf:
+                  - type: object
+                    properties:
+                      provider:
+                        anyOf:
+                        - type: string
+                          description: The text-to-speech provider. Optional — defaults to the in-network provider, which is all you normally need.
+                        - type: 'null'
+                      voiceId:
+                        type: string
+                        description: The voice the hosted assistant speaks with. Use an `id` returned by `GET /voices` (optionally filtered by `?language=`). Hosted mode only.
+                    required:
+                    - voiceId
+                    additionalProperties: false
+                    description: 'The hosted assistant''s text-to-speech voice. Omit `tts` to use the managed default voice; otherwise `{ "voiceId": "<id from GET /voices>" }` is enough.'
+                  - type: 'null'
+                backgroundAudio:
+                  anyOf:
+                  - anyOf:
+                    - type: object
+                      properties:
+                        type:
+                          type: string
+                          enum:
+                          - 'off'
+                      required:
+                      - type
+                      additionalProperties: false
+                    - type: object
+                      properties:
+                        type:
+                          type: string
+                          enum:
+                          - office
+                        volume:
+                          anyOf:
+                          - anyOf:
+                            - type: number
+                            - type: string
+                              enum:
+                              - NaN
+                            - type: string
+                              enum:
+                              - Infinity
+                            - type: string
+                              enum:
+                              - -Infinity
+                          - type: string
+                            enum:
+                            - Infinity
+                            - -Infinity
+                            - NaN
+                      required:
+                      - type
+                      - volume
+                      additionalProperties: false
+                  - type: 'null'
+                language:
+                  anyOf:
+                  - type: string
+                    description: 'The spoken language as a BCP-47 tag (e.g. "en", "es", "en-US"). Hosted: the in-network transcription hint. Manual: the Conversation Relay language (steers in-network transcription + the spoken voice). Discover values from `GET /languages`. Send "" to clear it back to auto-detect.'
+                  - type: 'null'
+                mcpServers:
+                  anyOf:
+                  - type: array
+                    items:
+                      type: object
+                      properties:
+                        url:
+                          type: string
+                          description: Public `https://` URL of your streamable-HTTP MCP server (commonly ending in `/mcp`). SSE-only servers are not supported.
+                        auth:
+                          anyOf:
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                                enum:
+                                - bearer
+                                - none
+                              token:
+                                anyOf:
+                                - type: string
+                                  description: 'Bearer token sent as `Authorization: Bearer <token>` on every request to your server. Required when `type` is ''bearer''; stored encrypted and never returned in reads.'
+                                - type: 'null'
+                            required:
+                            - type
+                            additionalProperties: false
+                            description: 'How Saperly authenticates to your MCP server. Use { type: ''none'' } (or omit `auth`) for an open server.'
+                          - type: 'null'
+                        allowedTools:
+                          anyOf:
+                          - type: array
+                            items:
+                              type: string
+                            description: Allow-list of tool names to expose to the assistant. Omit to expose every tool the server advertises.
+                          - type: 'null'
+                      required:
+                      - url
+                      additionalProperties: false
+                      description: A Model Context Protocol server the hosted assistant may call as tools mid-conversation. Hosted mode only.
+                    description: Replaces the full set of MCP servers on the connection (send `[]` to clear). Hosted mode only.
+                  - type: 'null'
+                callControl:
+                  anyOf:
+                  - type: object
+                    properties:
+                      endCall:
+                        anyOf:
+                        - type: boolean
+                          description: Allow the brain to hang up the call. Defaults on.
+                        - type: 'null'
+                      sendDtmf:
+                        anyOf:
+                        - type: boolean
+                          description: Allow the brain to send DTMF (touch-tone) digits. Defaults on.
+                        - type: 'null'
+                      transfer:
+                        anyOf:
+                        - type: object
+                          properties:
+                            targets:
+                              type: array
+                              items:
+                                type: string
+                              description: Allowed blind-transfer destinations (E.164 numbers or `sip:` URIs). Transfer only takes effect with at least one target.
+                            from:
+                              anyOf:
+                              - type: string
+                                description: Optional caller ID to present on the transferred leg.
+                              - type: 'null'
+                          required:
+                          - targets
+                          additionalProperties: false
+                          description: Blind-transfer enablement and its allowed targets.
+                        - type: 'null'
+                    additionalProperties: false
+                    description: Which call-control actions the connection's brain may take, projected to whichever backend handles the call. Omitted fields fall back to defaults (end-call + DTMF on, transfer off).
+                  - type: 'null'
+                complianceEnabled:
+                  anyOf:
+                  - type: boolean
+                    description: Toggle the do-not-message tool + the TCPA `disclosure` opener.
+                  - type: 'null'
+                smsAutoReply:
+                  anyOf:
+                  - type: boolean
+                    description: Hosted-line opt-in to auto-answer inbound SMS with the model. Default off.
+                  - type: 'null'
+                disclosure:
+                  anyOf:
+                  - type: string
+                    description: The TCPA notice spoken first, uninterruptibly, when compliance is on.
+                  - type: 'null'
+                openaiRealtime:
+                  anyOf:
+                  - type: object
+                    properties:
+                      model:
+                        type: string
+                        description: The OpenAI Realtime model id.
+                      voice:
+                        anyOf:
+                        - type: string
+                          description: The OpenAI Realtime voice. Distinct from the hosted `tts.voiceId` — this names a built-in OpenAI Realtime voice.
+                        - type: 'null'
+                    required:
+                    - model
+                    additionalProperties: false
+                    description: Config for the OpenAI-Realtime hosted backend. Only meaningful when `backend` is 'openai_realtime' (currently disabled). The OpenAI project is operator-hosted and not settable here.
+                  - type: 'null'
+                manualWebhookUrl:
+                  anyOf:
+                  - type: string
+                    description: Manual-mode webhook-brain URL. Only meaningful for manual mode; send "" to clear it.
+                  - type: 'null'
+              additionalProperties: false
+              description: Update a connection. Every field is optional — only the fields you send change. The handler re-syncs the carrier so a mode/backend switch reconciles automatically.
+        required: true
+    delete:
+      tags:
+      - Connections
+      operationId: connections.delete
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: string
+          description: The connection's id.
+        required: true
+      security: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum:
+                    - deleted
+                required:
+                - status
+                additionalProperties: false
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '403':
+          description: AuthorizationDenied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthorizationDenied'
+        '404':
+          description: ConnectionNotFound
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConnectionNotFound'
+        '429':
+          description: RateLimited
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimited'
+        '500':
+          description: InternalError
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+      summary: Delete a connection
+    servers:
+    - url: /
+      description: This worker
+components:
+  schemas:
+    UpstreamError:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - UpstreamError
+        status:
+          type: number
+          allOf:
+          - description: The HTTP status the carrier returned upstream.
+        code:
+          type: string
+          description: A short machine-readable code for the upstream failure.
+        message:
+          type: string
+          description: A human-readable description of the upstream failure (carrier identity scrubbed).
+      required:
+      - _tag
+      - status
+      - code
+      - message
+      additionalProperties: false
+    UnsupportedVoice:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - UnsupportedVoice
+        field:
+          type: string
+        voice:
+          type: string
+        message:
+          type: string
+      required:
+      - _tag
+      - field
+      - voice
+      - message
+      additionalProperties: false
+    ConnectionNotFound:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - ConnectionNotFound
+        id:
+          type: string
+      required:
+      - _tag
+      - id
+      additionalProperties: false
+    RateLimited:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - RateLimited
+        bucket:
+          type: string
+          description: The rate-limit bucket that was exhausted.
+      required:
+      - _tag
+      - bucket
+      additionalProperties: false
+    Unauthorized:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - Unauthorized
+        message:
+          type: string
+          description: Why the request was rejected (missing, invalid, or insufficient credentials).
+      required:
+      - _tag
+      - message
+      additionalProperties: false
+    AudioConfigurationError:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - AudioConfigurationError
+        message:
+          type: string
+      required:
+      - _tag
+      - message
+      additionalProperties: false
+    IdempotencyConflict:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - IdempotencyConflict
+        message:
+          type: string
+          description: Details of the conflict — a concurrent request is still processing under the same `Idempotency-Key`.
+      required:
+      - _tag
+      - message
+      additionalProperties: false
+    UnsupportedModel:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - UnsupportedModel
+        field:
+          type: string
+        model:
+          type: string
+        message:
+          type: string
+      required:
+      - _tag
+      - field
+      - model
+      - message
+      additionalProperties: false
+    InternalError:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - InternalError
+        traceId:
+          type: string
+          description: A correlation id for this failure — quote it when reporting the problem so the request can be traced.
+      required:
+      - _tag
+      - traceId
+      additionalProperties: false
+    AuthorizationDenied:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - AuthorizationDenied
+        reason:
+          type: string
+      required:
+      - _tag
+      - reason
+      additionalProperties: false
+    IdempotencyKeyMismatch:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - IdempotencyKeyMismatch
+        message:
+          type: string
+          description: Why the `Idempotency-Key` is unprocessable — either malformed (e.g. over the length cap) or reused for a request with a different payload.
+      required:
+      - _tag
+      - message
+      additionalProperties: false
+x-refined-from:
+- api-saperly-com-openapi.json
+- saperly-openapi.yml

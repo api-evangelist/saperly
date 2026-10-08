@@ -1,0 +1,240 @@
+openapi: 3.2.0
+info:
+  title: Saperly Voices API
+  version: 0.1.0
+  description: 'Operations tagged voices across 2 of this provider''s published API definitions: api-saperly-com-openapi.json, saperly-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: /
+  description: This worker
+- url: https://api.saperly.com
+  description: Production
+security: []
+tags:
+- name: Voices
+  description: Discover the in-network text-to-speech voices a hosted connection can speak with. Each voice carries its language, so this endpoint also doubles as the catalogue of supported spoken languages (use a voice's `language` value for a connection's `language` field).
+paths:
+  /voices:
+    get:
+      tags:
+      - Voices
+      operationId: voices.list
+      parameters:
+      - name: language
+        in: query
+        schema:
+          anyOf:
+          - type: string
+            description: Filter voices by language — a case-insensitive BCP-47 prefix. "en" matches "en", "en-US", "en-GB", … Omit to list every voice.
+          - type: 'null'
+        required: false
+      security: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      description: The voice's opaque, stable id. Pass it straight back as a connection's `tts.voiceId`.
+                    name:
+                      type: string
+                      description: The voice's display name (e.g. "Clara - Instructor").
+                    gender:
+                      type: string
+                      description: The voice's gender (e.g. "female", "male").
+                    language:
+                      type: string
+                      description: The language the voice speaks, as a BCP-47 tag (e.g. "en-US"). Also the value to use for a connection's `language` field if you want transcription in this language.
+                  required:
+                  - id
+                  - name
+                  - gender
+                  - language
+                  additionalProperties: false
+                  description: A selectable in-network text-to-speech voice. Use `id` as a connection's `tts.voiceId`.
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '403':
+          description: AuthorizationDenied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthorizationDenied'
+        '404':
+          description: CustomVoiceNotFound
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomVoiceNotFound'
+        '409':
+          description: CustomVoiceConflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomVoiceConflict'
+        '422':
+          description: InvalidVoiceUpload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidVoiceUpload'
+        '429':
+          description: RateLimited
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimited'
+        '500':
+          description: InternalError
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+        '502':
+          description: UpstreamError
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpstreamError'
+      summary: List available voices (optionally filtered by language)
+    servers:
+    - url: /
+      description: This worker
+components:
+  schemas:
+    UpstreamError:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - UpstreamError
+        status:
+          type: number
+          allOf:
+          - description: The HTTP status the carrier returned upstream.
+        code:
+          type: string
+          description: A short machine-readable code for the upstream failure.
+        message:
+          type: string
+          description: A human-readable description of the upstream failure (carrier identity scrubbed).
+      required:
+      - _tag
+      - status
+      - code
+      - message
+      additionalProperties: false
+    RateLimited:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - RateLimited
+        bucket:
+          type: string
+          description: The rate-limit bucket that was exhausted.
+      required:
+      - _tag
+      - bucket
+      additionalProperties: false
+    Unauthorized:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - Unauthorized
+        message:
+          type: string
+          description: Why the request was rejected (missing, invalid, or insufficient credentials).
+      required:
+      - _tag
+      - message
+      additionalProperties: false
+    InternalError:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - InternalError
+        traceId:
+          type: string
+          description: A correlation id for this failure — quote it when reporting the problem so the request can be traced.
+      required:
+      - _tag
+      - traceId
+      additionalProperties: false
+    CustomVoiceNotFound:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - CustomVoiceNotFound
+        message:
+          type: string
+      required:
+      - _tag
+      - message
+      additionalProperties: false
+    CustomVoiceConflict:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - CustomVoiceConflict
+        code:
+          type: string
+          enum:
+          - not_ready
+          - in_use
+          - conflict
+        message:
+          type: string
+      required:
+      - _tag
+      - code
+      - message
+      additionalProperties: false
+    InvalidVoiceUpload:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - InvalidVoiceUpload
+        message:
+          type: string
+      required:
+      - _tag
+      - message
+      additionalProperties: false
+    AuthorizationDenied:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - AuthorizationDenied
+        reason:
+          type: string
+      required:
+      - _tag
+      - reason
+      additionalProperties: false
+x-refined-from:
+- api-saperly-com-openapi.json
+- saperly-openapi.yml

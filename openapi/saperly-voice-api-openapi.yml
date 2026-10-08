@@ -1,0 +1,956 @@
+openapi: 3.2.0
+info:
+  title: Saperly Voice API
+  version: 0.1.0
+  description: 'Operations tagged voice across 2 of this provider''s published API definitions: api-saperly-com-openapi.json, saperly-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: /
+  description: This worker
+- url: https://api.saperly.com
+  description: Production
+security: []
+tags:
+- name: Voice
+  description: Place and control outbound calls and fetch call records. Audio always stays in-network — there is no live media-control surface here by design. Funds are reserved on start and settled from the carrier-reported duration on end.
+paths:
+  /calls:
+    post:
+      tags:
+      - Voice
+      operationId: voice.place
+      parameters: []
+      security: []
+      responses:
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  numberId:
+                    type: string
+                  direction:
+                    type: string
+                    enum:
+                    - inbound
+                    - outbound
+                  to:
+                    type: string
+                  from:
+                    type: string
+                  status:
+                    type: string
+                    description: Lifecycle status. `initiated` (placed or ringing, not yet finalized), `completed` (connected and hung up; billed by duration), `no_answer` (the callee never picked up; zero cost), `failed` (the carrier could not connect it, or it was expired unfinalized; zero cost), `rejected` (refused before answer — insufficient balance; zero cost). Only `completed` bills.
+                  rateCentsPerMin:
+                    anyOf:
+                    - type: number
+                    - type: 'null'
+                  durationSec:
+                    anyOf:
+                    - type: number
+                    - type: 'null'
+                  costCents:
+                    anyOf:
+                    - type: number
+                    - type: 'null'
+                  hasRecording:
+                    type: boolean
+                  hasTranscript:
+                    type: boolean
+                  createdAt:
+                    type: string
+                required:
+                - id
+                - numberId
+                - direction
+                - to
+                - from
+                - status
+                - rateCentsPerMin
+                - durationSec
+                - costCents
+                - hasRecording
+                - hasTranscript
+                - createdAt
+                additionalProperties: false
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '402':
+          description: InsufficientFunds | SpendLimitExceeded
+          content:
+            application/json:
+              schema:
+                anyOf:
+                - $ref: '#/components/schemas/InsufficientFunds'
+                - $ref: '#/components/schemas/SpendLimitExceeded'
+        '403':
+          description: AuthorizationDenied | RecipientOptedOut
+          content:
+            application/json:
+              schema:
+                anyOf:
+                - $ref: '#/components/schemas/AuthorizationDenied'
+                - $ref: '#/components/schemas/RecipientOptedOut'
+        '404':
+          description: NumberNotFound
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NumberNotFound'
+        '409':
+          description: IdempotencyConflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IdempotencyConflict'
+        '422':
+          description: NumberHasNoConnection | AudioConfigurationError | UnsupportedVoice | IdempotencyKeyMismatch
+          content:
+            application/json:
+              schema:
+                anyOf:
+                - $ref: '#/components/schemas/NumberHasNoConnection'
+                - $ref: '#/components/schemas/AudioConfigurationError'
+                - $ref: '#/components/schemas/UnsupportedVoice'
+                - $ref: '#/components/schemas/IdempotencyKeyMismatch'
+        '429':
+          description: RateLimited
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimited'
+        '500':
+          description: InternalError
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+        '502':
+          description: CallStartFailed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CallStartFailed'
+      summary: Place an outbound call
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                fromNumberId:
+                  type: string
+                  description: The Saperly number id to place the call from.
+                to:
+                  type: string
+                  description: The destination in E.164 format, e.g. "+15555550123".
+                connectionId:
+                  anyOf:
+                  - type: string
+                    description: Optional. Use this connection for the call instead of the number's bound one.
+                  - type: 'null'
+                instructions:
+                  anyOf:
+                  - type: string
+                    description: A per-call system prompt that overrides the connection's saved instructions for this call only. Omit to run the call on the line's saved config. (Voice/model/language are not per-call overridable via the API — set them on the connection.)
+                  - type: 'null'
+              required:
+              - fromNumberId
+              - to
+              additionalProperties: false
+              description: Place an outbound call from a Saperly number. The connection bound to the number (or `connectionId`) is the brain; audio stays in-network.
+        required: true
+    get:
+      tags:
+      - Voice
+      operationId: voice.list
+      parameters: []
+      security: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    numberId:
+                      type: string
+                    direction:
+                      type: string
+                      enum:
+                      - inbound
+                      - outbound
+                    to:
+                      type: string
+                    from:
+                      type: string
+                    status:
+                      type: string
+                      description: Lifecycle status. `initiated` (placed or ringing, not yet finalized), `completed` (connected and hung up; billed by duration), `no_answer` (the callee never picked up; zero cost), `failed` (the carrier could not connect it, or it was expired unfinalized; zero cost), `rejected` (refused before answer — insufficient balance; zero cost). Only `completed` bills.
+                    rateCentsPerMin:
+                      anyOf:
+                      - type: number
+                      - type: 'null'
+                    durationSec:
+                      anyOf:
+                      - type: number
+                      - type: 'null'
+                    costCents:
+                      anyOf:
+                      - type: number
+                      - type: 'null'
+                    hasRecording:
+                      type: boolean
+                    hasTranscript:
+                      type: boolean
+                    createdAt:
+                      type: string
+                  required:
+                  - id
+                  - numberId
+                  - direction
+                  - to
+                  - from
+                  - status
+                  - rateCentsPerMin
+                  - durationSec
+                  - costCents
+                  - hasRecording
+                  - hasTranscript
+                  - createdAt
+                  additionalProperties: false
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '403':
+          description: AuthorizationDenied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthorizationDenied'
+        '429':
+          description: RateLimited
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimited'
+        '500':
+          description: InternalError
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+      summary: List calls
+    servers:
+    - url: /
+      description: This worker
+  /calls/{id}/end:
+    post:
+      tags:
+      - Voice
+      operationId: voice.end
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: string
+          description: The call's id.
+        required: true
+      security: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  numberId:
+                    type: string
+                  direction:
+                    type: string
+                    enum:
+                    - inbound
+                    - outbound
+                  to:
+                    type: string
+                  from:
+                    type: string
+                  status:
+                    type: string
+                    description: Lifecycle status. `initiated` (placed or ringing, not yet finalized), `completed` (connected and hung up; billed by duration), `no_answer` (the callee never picked up; zero cost), `failed` (the carrier could not connect it, or it was expired unfinalized; zero cost), `rejected` (refused before answer — insufficient balance; zero cost). Only `completed` bills.
+                  rateCentsPerMin:
+                    anyOf:
+                    - type: number
+                    - type: 'null'
+                  durationSec:
+                    anyOf:
+                    - type: number
+                    - type: 'null'
+                  costCents:
+                    anyOf:
+                    - type: number
+                    - type: 'null'
+                  hasRecording:
+                    type: boolean
+                  hasTranscript:
+                    type: boolean
+                  createdAt:
+                    type: string
+                required:
+                - id
+                - numberId
+                - direction
+                - to
+                - from
+                - status
+                - rateCentsPerMin
+                - durationSec
+                - costCents
+                - hasRecording
+                - hasTranscript
+                - createdAt
+                additionalProperties: false
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '403':
+          description: AuthorizationDenied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthorizationDenied'
+        '404':
+          description: CallNotFound
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CallNotFound'
+        '429':
+          description: RateLimited
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimited'
+        '500':
+          description: InternalError
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+      summary: End a live call
+    servers:
+    - url: /
+      description: This worker
+  /calls/{id}/transfer:
+    post:
+      tags:
+      - Voice
+      operationId: voice.transfer
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: string
+          description: The call's id.
+        required: true
+      security: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  numberId:
+                    type: string
+                  direction:
+                    type: string
+                    enum:
+                    - inbound
+                    - outbound
+                  to:
+                    type: string
+                  from:
+                    type: string
+                  status:
+                    type: string
+                    description: Lifecycle status. `initiated` (placed or ringing, not yet finalized), `completed` (connected and hung up; billed by duration), `no_answer` (the callee never picked up; zero cost), `failed` (the carrier could not connect it, or it was expired unfinalized; zero cost), `rejected` (refused before answer — insufficient balance; zero cost). Only `completed` bills.
+                  rateCentsPerMin:
+                    anyOf:
+                    - type: number
+                    - type: 'null'
+                  durationSec:
+                    anyOf:
+                    - type: number
+                    - type: 'null'
+                  costCents:
+                    anyOf:
+                    - type: number
+                    - type: 'null'
+                  hasRecording:
+                    type: boolean
+                  hasTranscript:
+                    type: boolean
+                  createdAt:
+                    type: string
+                required:
+                - id
+                - numberId
+                - direction
+                - to
+                - from
+                - status
+                - rateCentsPerMin
+                - durationSec
+                - costCents
+                - hasRecording
+                - hasTranscript
+                - createdAt
+                additionalProperties: false
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '403':
+          description: AuthorizationDenied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthorizationDenied'
+        '404':
+          description: CallNotFound
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CallNotFound'
+        '409':
+          description: IdempotencyConflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IdempotencyConflict'
+        '422':
+          description: IdempotencyKeyMismatch
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IdempotencyKeyMismatch'
+        '429':
+          description: RateLimited
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimited'
+        '500':
+          description: InternalError
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+        '502':
+          description: CallStartFailed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CallStartFailed'
+      summary: Blind-transfer a live call
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                to:
+                  type: string
+                  description: Where to blind-transfer the live leg — an E.164 number (e.g. "+15551230000") or a `sip:` URI.
+              required:
+              - to
+              additionalProperties: false
+        required: true
+    servers:
+    - url: /
+      description: This worker
+  /calls/{id}:
+    get:
+      tags:
+      - Voice
+      operationId: voice.get
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: string
+          description: The call's id.
+        required: true
+      security: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  numberId:
+                    type: string
+                  direction:
+                    type: string
+                    enum:
+                    - inbound
+                    - outbound
+                  to:
+                    type: string
+                  from:
+                    type: string
+                  status:
+                    type: string
+                    description: Lifecycle status. `initiated` (placed or ringing, not yet finalized), `completed` (connected and hung up; billed by duration), `no_answer` (the callee never picked up; zero cost), `failed` (the carrier could not connect it, or it was expired unfinalized; zero cost), `rejected` (refused before answer — insufficient balance; zero cost). Only `completed` bills.
+                  rateCentsPerMin:
+                    anyOf:
+                    - type: number
+                    - type: 'null'
+                  durationSec:
+                    anyOf:
+                    - type: number
+                    - type: 'null'
+                  costCents:
+                    anyOf:
+                    - type: number
+                    - type: 'null'
+                  hasRecording:
+                    type: boolean
+                  hasTranscript:
+                    type: boolean
+                  createdAt:
+                    type: string
+                required:
+                - id
+                - numberId
+                - direction
+                - to
+                - from
+                - status
+                - rateCentsPerMin
+                - durationSec
+                - costCents
+                - hasRecording
+                - hasTranscript
+                - createdAt
+                additionalProperties: false
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '403':
+          description: AuthorizationDenied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthorizationDenied'
+        '404':
+          description: CallNotFound
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CallNotFound'
+        '429':
+          description: RateLimited
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimited'
+        '500':
+          description: InternalError
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+      summary: Get a call by id
+    servers:
+    - url: /
+      description: This worker
+  /calls/{id}/recording:
+    get:
+      tags:
+      - Voice
+      operationId: voice.recording
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: string
+          description: The call's id.
+        required: true
+      security: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema: {}
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '403':
+          description: AuthorizationDenied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthorizationDenied'
+        '404':
+          description: CallNotFound
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CallNotFound'
+        '429':
+          description: RateLimited
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimited'
+        '500':
+          description: InternalError
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+        '502':
+          description: UpstreamError
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpstreamError'
+      summary: Get a call recording (302 redirect to a download URL)
+    servers:
+    - url: /
+      description: This worker
+  /calls/{id}/transcript:
+    get:
+      tags:
+      - Voice
+      operationId: voice.transcript
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: string
+          description: The call's id.
+        required: true
+      security: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema: {}
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '403':
+          description: AuthorizationDenied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthorizationDenied'
+        '404':
+          description: CallNotFound
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CallNotFound'
+        '429':
+          description: RateLimited
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimited'
+        '500':
+          description: InternalError
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+      summary: Get a call transcript
+    servers:
+    - url: /
+      description: This worker
+components:
+  schemas:
+    UpstreamError:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - UpstreamError
+        status:
+          type: number
+          allOf:
+          - description: The HTTP status the carrier returned upstream.
+        code:
+          type: string
+          description: A short machine-readable code for the upstream failure.
+        message:
+          type: string
+          description: A human-readable description of the upstream failure (carrier identity scrubbed).
+      required:
+      - _tag
+      - status
+      - code
+      - message
+      additionalProperties: false
+    UnsupportedVoice:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - UnsupportedVoice
+        field:
+          type: string
+        voice:
+          type: string
+        message:
+          type: string
+      required:
+      - _tag
+      - field
+      - voice
+      - message
+      additionalProperties: false
+    RateLimited:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - RateLimited
+        bucket:
+          type: string
+          description: The rate-limit bucket that was exhausted.
+      required:
+      - _tag
+      - bucket
+      additionalProperties: false
+    CallNotFound:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - CallNotFound
+        callId:
+          type: string
+      required:
+      - _tag
+      - callId
+      additionalProperties: false
+    NumberHasNoConnection:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - NumberHasNoConnection
+        numberId:
+          type: string
+      required:
+      - _tag
+      - numberId
+      additionalProperties: false
+    Unauthorized:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - Unauthorized
+        message:
+          type: string
+          description: Why the request was rejected (missing, invalid, or insufficient credentials).
+      required:
+      - _tag
+      - message
+      additionalProperties: false
+    AudioConfigurationError:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - AudioConfigurationError
+        message:
+          type: string
+      required:
+      - _tag
+      - message
+      additionalProperties: false
+    IdempotencyConflict:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - IdempotencyConflict
+        message:
+          type: string
+          description: Details of the conflict — a concurrent request is still processing under the same `Idempotency-Key`.
+      required:
+      - _tag
+      - message
+      additionalProperties: false
+    RecipientOptedOut:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - RecipientOptedOut
+        to:
+          type: string
+      required:
+      - _tag
+      - to
+      additionalProperties: false
+    SpendLimitExceeded:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - SpendLimitExceeded
+        limitCents:
+          type: number
+        priorSpendCents:
+          type: number
+        requestedCents:
+          type: number
+      required:
+      - _tag
+      - limitCents
+      - priorSpendCents
+      - requestedCents
+      additionalProperties: false
+    InsufficientFunds:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - InsufficientFunds
+        balanceCents:
+          type: number
+        requestedCents:
+          type: number
+      required:
+      - _tag
+      - balanceCents
+      - requestedCents
+      additionalProperties: false
+    InternalError:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - InternalError
+        traceId:
+          type: string
+          description: A correlation id for this failure — quote it when reporting the problem so the request can be traced.
+      required:
+      - _tag
+      - traceId
+      additionalProperties: false
+    CallStartFailed:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - CallStartFailed
+        reason:
+          type: string
+      required:
+      - _tag
+      - reason
+      additionalProperties: false
+    AuthorizationDenied:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - AuthorizationDenied
+        reason:
+          type: string
+      required:
+      - _tag
+      - reason
+      additionalProperties: false
+    NumberNotFound:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - NumberNotFound
+        numberId:
+          type: string
+      required:
+      - _tag
+      - numberId
+      additionalProperties: false
+    IdempotencyKeyMismatch:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - IdempotencyKeyMismatch
+        message:
+          type: string
+          description: Why the `Idempotency-Key` is unprocessable — either malformed (e.g. over the length cap) or reused for a request with a different payload.
+      required:
+      - _tag
+      - message
+      additionalProperties: false
+x-refined-from:
+- api-saperly-com-openapi.json
+- saperly-openapi.yml

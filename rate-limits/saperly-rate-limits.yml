@@ -1,0 +1,20 @@
+generated: '2026-10-07'
+method: searched
+source: https://saperly.com/docs/guides/errors-and-idempotency
+name: Saperly rate limits
+limit_count: 0
+limits: []
+signaling:
+  status: 429
+  error_tag: RateLimited
+  error_fields:
+  - bucket
+  headers:
+  - Retry-After
+  notes: The errors guide documents 429 RateLimited with a bucket field ("which limit you hit") and the Python SDK
+    guide says to honor 429 Retry-After; the contract declares a 429 response on every operation. No numeric limits,
+    windows or X-RateLimit-* headers are published.
+note: 'Limits are undocumented: the provider publishes the 429 signal and the Retry-After header but no numbers.'
+sources:
+- https://saperly.com/docs/guides/errors-and-idempotency
+- https://saperly.com/docs/sdks/python

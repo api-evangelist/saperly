@@ -1,0 +1,101 @@
+generated: '2026-10-07'
+method: derived
+source: the pre-flight dossier, apis.yml pointers, spec servers, well-known, vendors -- nothing fetched here
+generator: derive-hosts.py
+summary:
+  hosts: 6
+  own: 3
+  other_domain: 0
+  platform: 3
+  roles:
+  - api
+  - docs
+  - other
+  - source
+  - website
+hosts:
+- host: api.saperly.com
+  found_by:
+  - apis[]
+  - spec-found
+  - contract-discovery
+  types: []
+  serves:
+  - api
+  - spec
+  registrable_domain: saperly.com
+  role: api
+  relation: own
+- host: discord.gg
+  found_by:
+  - docs-index
+  types: []
+  serves:
+  - docs
+  registrable_domain: discord.gg
+  role: other
+  relation: platform
+- host: docs.saperly.com
+  found_by:
+  - probed
+  - site-links
+  - namespace-probe
+  - contract-discovery
+  - well-known
+  types: []
+  serves: []
+  title: Saperly Documentation — API, SDKs &amp; Guides
+  status: 200
+  registrable_domain: saperly.com
+  role: docs
+  relation: own
+- host: github.com
+  found_by:
+  - pointer
+  - docs-index
+  types:
+  - GitHubOrganization
+  serves:
+  - docs
+  registrable_domain: github.com
+  role: source
+  relation: platform
+- host: saperly.com
+  found_by:
+  - pointer
+  - apis[]
+  - probed
+  - docs-index
+  - spec-found
+  - contract-discovery
+  - well-known
+  - vendor-detect
+  types:
+  - Website
+  - Documentation
+  - APIReference
+  - GettingStarted
+  - Blog
+  - SignUp
+  - Login
+  - Pricing
+  - Security
+  - TermsOfService
+  - PrivacyPolicy
+  serves:
+  - docs
+  - spec
+  - cdn
+  vendor: cloudflare
+  registrable_domain: saperly.com
+  role: website
+  relation: own
+- host: x.com
+  found_by:
+  - docs-index
+  types: []
+  serves:
+  - docs
+  registrable_domain: x.com
+  role: other
+  relation: platform

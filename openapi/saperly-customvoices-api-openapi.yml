@@ -1,0 +1,581 @@
+openapi: 3.2.0
+info:
+  title: Saperly Custom Voices API
+  version: 0.1.0
+  description: 'Operations tagged customVoices across 2 of this provider''s published API definitions: api-saperly-com-openapi.json, saperly-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: /
+  description: This worker
+- url: https://api.saperly.com
+  description: Production
+security: []
+tags:
+- name: customVoices
+paths:
+  /custom-voices:
+    get:
+      tags:
+      - customVoices
+      operationId: customVoices.list
+      parameters: []
+      security: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    language:
+                      type: string
+                    gender:
+                      type: string
+                      enum:
+                      - male
+                      - female
+                      - neutral
+                    status:
+                      type: string
+                      enum:
+                      - pending
+                      - active
+                      - failed
+                      - expired
+                    failureReason:
+                      anyOf:
+                      - type: string
+                      - type: 'null'
+                    deletionPending:
+                      anyOf:
+                      - type: boolean
+                      - type: 'null'
+                    createdAt:
+                      type: string
+                    updatedAt:
+                      type: string
+                  required:
+                  - id
+                  - name
+                  - language
+                  - gender
+                  - status
+                  - failureReason
+                  - createdAt
+                  - updatedAt
+                  additionalProperties: false
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '403':
+          description: AuthorizationDenied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthorizationDenied'
+        '404':
+          description: CustomVoiceNotFound
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomVoiceNotFound'
+        '409':
+          description: CustomVoiceConflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomVoiceConflict'
+        '422':
+          description: InvalidVoiceUpload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidVoiceUpload'
+        '429':
+          description: RateLimited
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimited'
+        '500':
+          description: InternalError
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+        '502':
+          description: UpstreamError
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpstreamError'
+      summary: Custom voices list
+      x-summary-source: derived
+    post:
+      tags:
+      - customVoices
+      operationId: customVoices.create
+      parameters:
+      - name: idempotency-key
+        in: header
+        schema:
+          type: string
+          description: A stable submission key. Reuse it when retrying the same upload.
+        required: true
+      security: []
+      responses:
+        '202':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+                  language:
+                    type: string
+                  gender:
+                    type: string
+                    enum:
+                    - male
+                    - female
+                    - neutral
+                  status:
+                    type: string
+                    enum:
+                    - pending
+                    - active
+                    - failed
+                    - expired
+                  failureReason:
+                    anyOf:
+                    - type: string
+                    - type: 'null'
+                  deletionPending:
+                    anyOf:
+                    - type: boolean
+                    - type: 'null'
+                  createdAt:
+                    type: string
+                  updatedAt:
+                    type: string
+                required:
+                - id
+                - name
+                - language
+                - gender
+                - status
+                - failureReason
+                - createdAt
+                - updatedAt
+                additionalProperties: false
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '403':
+          description: AuthorizationDenied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthorizationDenied'
+        '404':
+          description: CustomVoiceNotFound
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomVoiceNotFound'
+        '409':
+          description: CustomVoiceConflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomVoiceConflict'
+        '422':
+          description: InvalidVoiceUpload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidVoiceUpload'
+        '429':
+          description: RateLimited
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimited'
+        '500':
+          description: InternalError
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+        '502':
+          description: UpstreamError
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpstreamError'
+      description: Upload a speech recording of up to 10 seconds and 5 MB. Requires connections:write and an Idempotency-Key header. Returns a processing record; poll GET /custom-voices/{id} until active. WAV, MP3, FLAC, OGG and M4A are supported.
+      summary: Upload a private voice sample
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                language:
+                  type: string
+                gender:
+                  type: string
+                  enum:
+                  - male
+                  - female
+                  - neutral
+                audio:
+                  type: string
+                  format: binary
+              required:
+              - name
+              - language
+              - gender
+              - audio
+              additionalProperties: false
+        required: true
+    servers:
+    - url: /
+      description: This worker
+  /custom-voices/{id}:
+    get:
+      tags:
+      - customVoices
+      operationId: customVoices.get
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: string
+        required: true
+      security: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+                  language:
+                    type: string
+                  gender:
+                    type: string
+                    enum:
+                    - male
+                    - female
+                    - neutral
+                  status:
+                    type: string
+                    enum:
+                    - pending
+                    - active
+                    - failed
+                    - expired
+                  failureReason:
+                    anyOf:
+                    - type: string
+                    - type: 'null'
+                  deletionPending:
+                    anyOf:
+                    - type: boolean
+                    - type: 'null'
+                  createdAt:
+                    type: string
+                  updatedAt:
+                    type: string
+                required:
+                - id
+                - name
+                - language
+                - gender
+                - status
+                - failureReason
+                - createdAt
+                - updatedAt
+                additionalProperties: false
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '403':
+          description: AuthorizationDenied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthorizationDenied'
+        '404':
+          description: CustomVoiceNotFound
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomVoiceNotFound'
+        '409':
+          description: CustomVoiceConflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomVoiceConflict'
+        '422':
+          description: InvalidVoiceUpload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidVoiceUpload'
+        '429':
+          description: RateLimited
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimited'
+        '500':
+          description: InternalError
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+        '502':
+          description: UpstreamError
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpstreamError'
+      summary: Custom voices get
+      x-summary-source: derived
+    delete:
+      tags:
+      - customVoices
+      operationId: customVoices.delete
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: string
+        required: true
+      security: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum:
+                    - deleted
+                required:
+                - status
+                additionalProperties: false
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '403':
+          description: AuthorizationDenied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthorizationDenied'
+        '404':
+          description: CustomVoiceNotFound
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomVoiceNotFound'
+        '409':
+          description: CustomVoiceConflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomVoiceConflict'
+        '422':
+          description: InvalidVoiceUpload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidVoiceUpload'
+        '429':
+          description: RateLimited
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimited'
+        '500':
+          description: InternalError
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+        '502':
+          description: UpstreamError
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpstreamError'
+      summary: Custom voices delete
+      x-summary-source: derived
+    servers:
+    - url: /
+      description: This worker
+components:
+  schemas:
+    UpstreamError:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - UpstreamError
+        status:
+          type: number
+          allOf:
+          - description: The HTTP status the carrier returned upstream.
+        code:
+          type: string
+          description: A short machine-readable code for the upstream failure.
+        message:
+          type: string
+          description: A human-readable description of the upstream failure (carrier identity scrubbed).
+      required:
+      - _tag
+      - status
+      - code
+      - message
+      additionalProperties: false
+    RateLimited:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - RateLimited
+        bucket:
+          type: string
+          description: The rate-limit bucket that was exhausted.
+      required:
+      - _tag
+      - bucket
+      additionalProperties: false
+    Unauthorized:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - Unauthorized
+        message:
+          type: string
+          description: Why the request was rejected (missing, invalid, or insufficient credentials).
+      required:
+      - _tag
+      - message
+      additionalProperties: false
+    InternalError:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - InternalError
+        traceId:
+          type: string
+          description: A correlation id for this failure — quote it when reporting the problem so the request can be traced.
+      required:
+      - _tag
+      - traceId
+      additionalProperties: false
+    CustomVoiceNotFound:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - CustomVoiceNotFound
+        message:
+          type: string
+      required:
+      - _tag
+      - message
+      additionalProperties: false
+    CustomVoiceConflict:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - CustomVoiceConflict
+        code:
+          type: string
+          enum:
+          - not_ready
+          - in_use
+          - conflict
+        message:
+          type: string
+      required:
+      - _tag
+      - code
+      - message
+      additionalProperties: false
+    InvalidVoiceUpload:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - InvalidVoiceUpload
+        message:
+          type: string
+      required:
+      - _tag
+      - message
+      additionalProperties: false
+    AuthorizationDenied:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - AuthorizationDenied
+        reason:
+          type: string
+      required:
+      - _tag
+      - reason
+      additionalProperties: false
+x-refined-from:
+- api-saperly-com-openapi.json
+- saperly-openapi.yml

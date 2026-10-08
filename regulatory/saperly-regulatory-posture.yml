@@ -1,0 +1,37 @@
+generated: '2026-10-07'
+method: none
+source: live probes of https://saperly.com on 2026-10-07 plus the harvested security/, conformance/ and lifecycle/
+  artifacts and https://saperly.com/privacy, https://saperly.com/terms
+signals: {}
+checked:
+- url: https://saperly.com/accessibility
+  status: 404
+- url: https://saperly.com/accessibility/vpat
+  status: 404
+- url: https://saperly.com/legal/subprocessors
+  status: 404
+- url: https://saperly.com/legal/dpa
+  status: 404
+- url: https://saperly.com/privacy/requests
+  status: 404
+- url: https://saperly.com/transparency
+  status: 404
+- url: https://saperly.com/security/sbom
+  status: 404
+- url: https://saperly.com/docs/data-residency
+  status: 404
+- url: https://saperly.com/ai/transparency
+  status: 404
+- url: https://saperly.com/legal/report-content
+  status: 404
+- url: https://saperly.com/.well-known/security.txt
+  status: 404
+- url: https://saperly.com/privacy
+  status: 200
+- url: https://saperly.com/terms
+  status: 200
+- url: https://saperly.com/security
+  status: 200
+notes: No horizontal regulatory signal (SBOM, VPAT, subprocessor list, DPA, DSR portal, transparency report, data
+  residency, support lifetime, GPC statement) is published. The sector compliance the provider documents (TCPA consent/disclosure,
+  10DLC registration) is recorded in conformance/saperly-conformance.yml.

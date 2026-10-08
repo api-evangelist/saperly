@@ -1,0 +1,43 @@
+generated: '2026-10-07'
+method: searched
+source: https://saperly.com/docs/guides/authentication (API-key scope grants); https://saperly.com/.well-known/oauth-authorization-server
+  (MCP OAuth scopes_supported, probed 2026-10-07)
+docs: https://saperly.com/docs/guides/authentication
+description: 'Saperly has two scope vocabularies: the coarse read/write/admin grant carried by a scoped sap_sk_
+  API key (bounded further by an optional number allow-list and spend cap), and the OpenID scopes the MCP OAuth
+  2.1 authorization server at https://saperly.com advertises.'
+scopes:
+- scope: read
+  name: read
+  description: list and read resources (numbers, connections, messages, calls, usage, consent)
+  issuer: api-key grant
+- scope: write
+  name: write
+  description: mutating actions — place calls, send SMS, provision/release numbers, record consent, write connections
+  issuer: api-key grant
+- scope: admin
+  name: admin
+  description: everything write allows, plus minting, listing, and revoking child keys (keys:admin)
+  issuer: api-key grant
+- scope: openid
+  name: openid
+  description: OpenID Connect identity scope advertised by the MCP OAuth authorization server
+  issuer: https://saperly.com
+- scope: profile
+  name: profile
+  description: advertised by the MCP OAuth authorization server
+  issuer: https://saperly.com
+- scope: email
+  name: email
+  description: advertised by the MCP OAuth authorization server
+  issuer: https://saperly.com
+- scope: offline_access
+  name: offline_access
+  description: refresh-token access (grant_types_supported includes refresh_token)
+  issuer: https://saperly.com
+grant_bounds:
+  numberScope: optional allow-list of number ids; number-scoped actions are restricted to exactly those numbers
+  spendLimitCents: hard spend cap in cents enforced at reserve time
+  spendLimitResetPeriod: '''monthly'' (resets at the UTC month boundary) or null for a lifetime cap'
+  child_keys: a key with admin can mint child keys whose scopes, allow-list and cap may not exceed its own grant
+    (enforced server-side)

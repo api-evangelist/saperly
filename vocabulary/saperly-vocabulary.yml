@@ -1,0 +1,263 @@
+generated: '2026-10-07'
+method: derived
+generator: derive-vocabulary.py
+source: openapi/saperly-openapi.yml
+vocabulary:
+  name: Saperly Domain Vocabulary
+  description: 'Terms declared by Saperly''s own API contract: its resource groups, objects and enumerations, with the contract''s definitions.
+    Derived, not authored.'
+  version: '2026-10-07'
+  terms:
+  - term: health
+    definition: Service liveness. A lightweight, unauthenticated probe for uptime checks and load balancers.
+    tags:
+    - Resource Group
+    source: openapi/saperly-openapi.yml
+  - term: workspace
+    definition: Workspace administration — read the members, API tokens, webhook endpoints, and audit log for a workspace. Dashboard/management
+      routes keyed by the workspace slug in the path.
+    tags:
+    - Resource Group
+    source: openapi/saperly-openapi.yml
+  - term: api-token-registry
+    definition: Manage the scoped `sk_` API keys agents use to call Saperly. Each key carries a set of scopes, an optional number allow-list,
+      and an optional spend cap; revoke a key when it is no longer needed.
+    tags:
+    - Resource Group
+    source: openapi/saperly-openapi.yml
+  - term: workspace-invitations
+    definition: Invite teammates to a workspace by email address.
+    tags:
+    - Resource Group
+    source: openapi/saperly-openapi.yml
+  - term: assistant
+    definition: Ask the built-in workspace assistant a natural-language question and get a text answer back. Backed by an in-network model; availability
+      depends on the operator configuration.
+    tags:
+    - Resource Group
+    source: openapi/saperly-openapi.yml
+  - term: numbers
+    definition: Phone numbers — provision, list, release, and configure the lines in your workspace. Bind a connection to a number to make it
+      answer calls and messages, set a per-number webhook, and override the SMS sender id or caller ID name. The fleet belongs to the workspace
+      your API key resolves to.
+    tags:
+    - Resource Group
+    source: openapi/saperly-openapi.yml
+  - term: connections
+    definition: Connections — the handler bound to a phone number that answers and talks. Hosted lines run an in-network voice assistant (pick
+      the model, voice, language, and MCP tools); manual lines forward turns to your own brain. Audio always stays in-network.
+    tags:
+    - Resource Group
+    source: openapi/saperly-openapi.yml
+  - term: messaging
+    definition: Send and list SMS messages on your numbers. Outbound sends are billed per segment and pass through opt-out (STOP) and spend-limit
+      enforcement before reaching the carrier; inbound messages are recorded against the receiving number.
+    tags:
+    - Resource Group
+    source: openapi/saperly-openapi.yml
+  - term: voice
+    definition: Place and control outbound calls and fetch call records. Audio always stays in-network — there is no live media-control surface
+      here by design. Funds are reserved on start and settled from the carrier-reported duration on end.
+    tags:
+    - Resource Group
+    source: openapi/saperly-openapi.yml
+  - term: voices
+    definition: Discover the in-network text-to-speech voices a hosted connection can speak with. Each voice carries its language, so this endpoint
+      also doubles as the catalogue of supported spoken languages (use a voice's `language` value for a connection's `language` field).
+    tags:
+    - Resource Group
+    source: openapi/saperly-openapi.yml
+  - term: languages
+    definition: Discover the spoken languages a connection can use (its `language` field). The list is derived from the voice catalogue — every
+      language here has at least one voice that speaks it (see `GET /voices`) — and is ordered most-supported first. Any well-formed BCP-47 tag
+      is also accepted on a connection; this is the curated, recommended set.
+    tags:
+    - Resource Group
+    source: openapi/saperly-openapi.yml
+  - term: usage
+    definition: Read metered usage for the workspace — call and message counts, total call cost and duration, and the current prepaid balance.
+      Aggregated over an optional time window; the balance is point-in-time.
+    tags:
+    - Resource Group
+    source: openapi/saperly-openapi.yml
+  - term: consent
+    definition: Track opt-in consent for contacts on your numbers. Record, revoke, list, and check the consent that backs your outbound messaging
+      compliance. (Inbound STOP/START opt-out is handled automatically by the carrier-side keyword path.)
+    tags:
+    - Resource Group
+    source: openapi/saperly-openapi.yml
+  - term: pricing
+    definition: Pricing — get a live quote for what a phone number will cost before you provision it. Returns the customer-facing monthly and
+      upfront prices for a given country and number type, so you can confirm the cost up front and pass it to `POST /numbers` as the `expected*`
+      price.
+    tags:
+    - Resource Group
+    source: openapi/saperly-openapi.yml
+  - term: keys
+    definition: 'Provision and manage scoped `sk_` API keys for the workspace. The workspace is always read from the calling key, never from client
+      input. A key holding the `keys:admin` scope can mint child keys (and list/revoke the workspace''s keys), bounded by the parent ceiling:
+      a child''s scopes, number allow-list, and spend cap must each be a subset of the minting key''s own grant.'
+    tags:
+    - Resource Group
+    source: openapi/saperly-openapi.yml
+  - term: WorkspaceNotFound
+    definition: 'Object declared by the contract with fields: _tag, slug.'
+    tags:
+    - Object
+    source: openapi/saperly-openapi.yml#/components/schemas/WorkspaceNotFound
+  - term: InternalError
+    definition: 'Object declared by the contract with fields: _tag, traceId.'
+    tags:
+    - Object
+    source: openapi/saperly-openapi.yml#/components/schemas/InternalError
+  - term: Unauthorized
+    definition: 'Object declared by the contract with fields: _tag, message.'
+    tags:
+    - Object
+    source: openapi/saperly-openapi.yml#/components/schemas/Unauthorized
+  - term: AuthorizationDenied
+    definition: 'Object declared by the contract with fields: _tag, reason.'
+    tags:
+    - Object
+    source: openapi/saperly-openapi.yml#/components/schemas/AuthorizationDenied
+  - term: RateLimited
+    definition: 'Object declared by the contract with fields: _tag, bucket.'
+    tags:
+    - Object
+    source: openapi/saperly-openapi.yml#/components/schemas/RateLimited
+  - term: AssistantUnavailable
+    definition: 'Object declared by the contract with fields: _tag, reason.'
+    tags:
+    - Object
+    source: openapi/saperly-openapi.yml#/components/schemas/AssistantUnavailable
+  - term: NumberNotFound
+    definition: 'Object declared by the contract with fields: _tag, numberId.'
+    tags:
+    - Object
+    source: openapi/saperly-openapi.yml#/components/schemas/NumberNotFound
+  - term: CountryNotAvailable
+    definition: 'Object declared by the contract with fields: _tag, country, message.'
+    tags:
+    - Object
+    source: openapi/saperly-openapi.yml#/components/schemas/CountryNotAvailable
+  - term: NumberQuotaExceeded
+    definition: 'Object declared by the contract with fields: _tag, limit, current.'
+    tags:
+    - Object
+    source: openapi/saperly-openapi.yml#/components/schemas/NumberQuotaExceeded
+  - term: PriceChanged
+    definition: 'Object declared by the contract with fields: _tag, phoneNumber, actualMonthlyPriceCents, actualUpfrontPriceCents, expectedMonthlyPriceCents,
+      expectedUpfrontPriceCents, currency.'
+    tags:
+    - Object
+    source: openapi/saperly-openapi.yml#/components/schemas/PriceChanged
+  - term: IdempotencyConflict
+    definition: 'Object declared by the contract with fields: _tag, message.'
+    tags:
+    - Object
+    source: openapi/saperly-openapi.yml#/components/schemas/IdempotencyConflict
+  - term: NoNumbersAvailable
+    definition: 'Object declared by the contract with fields: _tag, country, numberType.'
+    tags:
+    - Object
+    source: openapi/saperly-openapi.yml#/components/schemas/NoNumbersAvailable
+  - term: InsufficientFunds
+    definition: 'Object declared by the contract with fields: _tag, balanceCents, requestedCents.'
+    tags:
+    - Object
+    source: openapi/saperly-openapi.yml#/components/schemas/InsufficientFunds
+  - term: PaymentMethodRequired
+    definition: 'Object declared by the contract with fields: _tag, activeNumbers, message.'
+    tags:
+    - Object
+    source: openapi/saperly-openapi.yml#/components/schemas/PaymentMethodRequired
+  - term: UpstreamError
+    definition: 'Object declared by the contract with fields: _tag, status, code, message.'
+    tags:
+    - Object
+    source: openapi/saperly-openapi.yml#/components/schemas/UpstreamError
+  - term: IdempotencyKeyMismatch
+    definition: 'Object declared by the contract with fields: _tag, message.'
+    tags:
+    - Object
+    source: openapi/saperly-openapi.yml#/components/schemas/IdempotencyKeyMismatch
+  - term: InvalidSmsSenderId
+    definition: 'Object declared by the contract with fields: _tag, reason.'
+    tags:
+    - Object
+    source: openapi/saperly-openapi.yml#/components/schemas/InvalidSmsSenderId
+  - term: InvalidCallerIdName
+    definition: 'Object declared by the contract with fields: _tag, reason.'
+    tags:
+    - Object
+    source: openapi/saperly-openapi.yml#/components/schemas/InvalidCallerIdName
+  - term: ConnectionNotFound
+    definition: 'Object declared by the contract with fields: _tag, id.'
+    tags:
+    - Object
+    source: openapi/saperly-openapi.yml#/components/schemas/ConnectionNotFound
+  - term: UnsupportedModel
+    definition: 'Object declared by the contract with fields: _tag, field, model, message.'
+    tags:
+    - Object
+    source: openapi/saperly-openapi.yml#/components/schemas/UnsupportedModel
+  - term: UnsupportedVoice
+    definition: 'Object declared by the contract with fields: _tag, field, voice, message.'
+    tags:
+    - Object
+    source: openapi/saperly-openapi.yml#/components/schemas/UnsupportedVoice
+  - term: AudioConfigurationError
+    definition: 'Object declared by the contract with fields: _tag, message.'
+    tags:
+    - Object
+    source: openapi/saperly-openapi.yml#/components/schemas/AudioConfigurationError
+  - term: RecipientOptedOut
+    definition: 'Object declared by the contract with fields: _tag, to.'
+    tags:
+    - Object
+    source: openapi/saperly-openapi.yml#/components/schemas/RecipientOptedOut
+  - term: MessageSendFailed
+    definition: 'Object declared by the contract with fields: _tag, reason.'
+    tags:
+    - Object
+    source: openapi/saperly-openapi.yml#/components/schemas/MessageSendFailed
+  - term: DestinationNotSupported
+    definition: 'Object declared by the contract with fields: _tag, to.'
+    tags:
+    - Object
+    source: openapi/saperly-openapi.yml#/components/schemas/DestinationNotSupported
+  - term: SpendLimitExceeded
+    definition: 'Object declared by the contract with fields: _tag, limitCents, priorSpendCents, requestedCents.'
+    tags:
+    - Object
+    source: openapi/saperly-openapi.yml#/components/schemas/SpendLimitExceeded
+  - term: NumberHasNoConnection
+    definition: 'Object declared by the contract with fields: _tag, numberId.'
+    tags:
+    - Object
+    source: openapi/saperly-openapi.yml#/components/schemas/NumberHasNoConnection
+  - term: CallStartFailed
+    definition: 'Object declared by the contract with fields: _tag, reason.'
+    tags:
+    - Object
+    source: openapi/saperly-openapi.yml#/components/schemas/CallStartFailed
+  - term: CallNotFound
+    definition: 'Object declared by the contract with fields: _tag, callId.'
+    tags:
+    - Object
+    source: openapi/saperly-openapi.yml#/components/schemas/CallNotFound
+  - term: CustomVoiceConflict
+    definition: 'Object declared by the contract with fields: _tag, code, message.'
+    tags:
+    - Object
+    source: openapi/saperly-openapi.yml#/components/schemas/CustomVoiceConflict
+  - term: CustomVoiceNotFound
+    definition: 'Object declared by the contract with fields: _tag, message.'
+    tags:
+    - Object
+    source: openapi/saperly-openapi.yml#/components/schemas/CustomVoiceNotFound
+  - term: InvalidVoiceUpload
+    definition: 'Object declared by the contract with fields: _tag, message.'
+    tags:
+    - Object
+    source: openapi/saperly-openapi.yml#/components/schemas/InvalidVoiceUpload

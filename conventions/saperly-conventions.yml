@@ -1,0 +1,112 @@
+generated: '2026-10-07'
+method: searched
+source: https://saperly.com/docs/guides/errors-and-idempotency; https://saperly.com/docs/guides/authentication;
+  https://saperly.com/docs/guides/webhooks; https://saperly.com/docs/guides/billing; https://saperly.com/docs/guides/numbers;
+  https://saperly.com/docs/sdks/python; https://saperly.com/AGENTS.md; openapi/saperly-openapi.yml
+description: Cross-cutting semantics of the Saperly v2 REST API.
+base_url: https://api.saperly.com
+api_style: REST, JSON, camelCase fields; all money amounts are integer cents
+authentication:
+  style: Bearer sap_sk_live_ scoped API key; workspace resolved from the key
+  docs: https://saperly.com/docs/guides/authentication
+  artifact: authentication/saperly-authentication.yml
+idempotency:
+  coverage: full
+  mechanism: Idempotency-Key request header (IETF draft), client-generated UUID v4
+  header: Idempotency-Key
+  applies_to: every mutating endpoint ("Every mutating endpoint accepts the standard IETF Idempotency-Key header")
+  conflict_behavior: same key + same body returns the original result; same key + different body -> 422 IdempotencyKeyMismatch;
+    replay while the first request is in flight -> 409 IdempotencyConflict
+  retention: null
+  client_generated: true
+  docs: https://saperly.com/docs/guides/errors-and-idempotency
+  notes: The SDKs do not invent a key; pass your own and reuse the exact value on every retry. Number rent sweeps
+    are idempotent per (number, billing period). The contract itself declares the header only on customVoices.create;
+    the docs state the coverage.
+pagination:
+  style: none documented
+  notes: List operations (numbers.list, connections.list, messaging.list, voice.list, consent.list) declare no cursor/limit
+    parameters in the contract; messaging.list filters by numberId and usage.summary by since.
+field_expansion:
+  supported: false
+metadata:
+  supported: false
+request_tracing:
+  header: null
+  notes: No request-id header is documented.
+versioning:
+  scheme: v2 product generation, no URL version prefix
+  artifact: lifecycle/saperly-lifecycle.yml
+error_envelope:
+  shape: tagged JSON body with a _tag discriminant plus tag-specific fields, returned with the matching HTTP status
+  discriminator: _tag
+  artifact: errors/saperly-problem-types.yml
+rate_limits:
+  status: 429
+  error_tag: RateLimited
+  fields:
+  - bucket
+  headers:
+  - Retry-After
+  docs: https://saperly.com/docs/sdks/python ("honor 429 Retry-After")
+  artifact: rate-limits/saperly-rate-limits.yml
+webhooks:
+  signature_header: x-saperly-signature (v1=<hex>, HMAC-SHA256 over `${timestamp}.${rawBody}`)
+  timestamp_header: x-saperly-timestamp
+  delivery_id_header: x-saperly-delivery-id
+  artifact: asyncapi/saperly-webhooks.yml
+dry_run_mode:
+  supported: partial
+  mechanism: 'GET /pricing/quote (pricing.quote) quotes a number before provisioning; numbers.provision accepts
+    expectedMonthlyPriceCents / expectedUpfrontPriceCents and rejects with PriceChanged when the live price drifted
+    (override with approveHigherPrice: true)'
+  docs: https://saperly.com/docs/guides/billing
+  notes: No general dry-run or test mode is documented for the v2 API.
+reversibility:
+  grade: documented
+  notes: Reversal operations exist for most write surfaces but the docs state no time window for any of them, so
+    none is verified.
+  surfaces:
+  - write: numbers.provision
+    reversal: numbers.release
+    window: null
+    docs: https://saperly.com/docs/guides/numbers
+    notes: releasing sets releasedAt and stops the monthly rent
+  - write: voice.place
+    reversal: voice.end
+    window: null
+    docs: https://saperly.com/docs/guides/voice
+    notes: issues the carrier hangup; billing settles from the carrier event. A call that never connects is released
+      (not billed) by the reserve → settle → release ledger
+  - write: consent.record
+    reversal: consent.revoke
+    window: null
+    docs: https://saperly.com/docs/guides/compliance
+  - write: keys.mint
+    reversal: keys.revoke
+    window: null
+    docs: https://saperly.com/docs/guides/authentication
+  - write: api-token-registry.create
+    reversal: api-token-registry.revoke
+    window: null
+    docs: https://saperly.com/docs/api-reference/api-token-registry/api-token-registry.revoke
+  - write: connections.create
+    reversal: connections.delete
+    window: null
+    docs: https://saperly.com/docs/sdks/node
+  - write: customVoices.create
+    reversal: customVoices.delete
+    window: null
+    docs: openapi/saperly-openapi.yml
+  - write: messaging.send
+    reversal: null
+    window: null
+    notes: an SMS cannot be recalled; no reversal exists
+  - write: voice.transfer
+    reversal: null
+    window: null
+other_conventions:
+  money: integer cents everywhere (balanceCents, costCents, spendLimitCents)
+  ledger: reserve → settle → release on every metered action
+  sdk_result_shape: SDK methods return { data, error } and do not throw by default; Node SDK retries idempotent
+    methods (GET/HEAD/OPTIONS/DELETE) once on 5xx/network errors and never retries POST/PATCH

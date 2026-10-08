@@ -1,0 +1,676 @@
+openapi: 3.2.0
+info:
+  title: Saperly Workspace API
+  version: 0.1.0
+  description: 'Operations tagged workspace across 2 of this provider''s published API definitions: api-saperly-com-openapi.json, saperly-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: /
+  description: This worker
+- url: https://api.saperly.com
+  description: Production
+security: []
+tags:
+- name: Workspace
+  description: Workspace administration — read the members, API tokens, webhook endpoints, and audit log for a workspace. Dashboard/management routes keyed by the workspace slug in the path.
+paths:
+  /workspaces/{slug}/members:
+    get:
+      tags:
+      - Workspace
+      operationId: workspace.members
+      parameters:
+      - name: slug
+        in: path
+        schema:
+          type: string
+          description: The workspace's URL slug.
+        required: true
+      security: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    email:
+                      type: string
+                    image:
+                      anyOf:
+                      - type: string
+                      - type: 'null'
+                    role:
+                      type: string
+                      enum:
+                      - owner
+                      - admin
+                      - member
+                    systemRole:
+                      type: string
+                      enum:
+                      - admin
+                      - user
+                  required:
+                  - id
+                  - name
+                  - email
+                  - image
+                  - role
+                  - systemRole
+                  additionalProperties: false
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '403':
+          description: AuthorizationDenied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthorizationDenied'
+        '404':
+          description: WorkspaceNotFound
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkspaceNotFound'
+        '429':
+          description: RateLimited
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimited'
+        '500':
+          description: InternalError
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+      summary: List the workspace members
+    servers:
+    - url: /
+      description: This worker
+  /workspaces/{slug}/api-tokens:
+    get:
+      tags:
+      - Workspace
+      operationId: workspace.api-tokens
+      parameters:
+      - name: slug
+        in: path
+        schema:
+          type: string
+          description: The workspace's URL slug.
+        required: true
+      security: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    token:
+                      type: string
+                    prefix:
+                      type: string
+                    scopes:
+                      type: array
+                      items:
+                        type: string
+                        enum:
+                        - read
+                        - write
+                        - admin
+                    lastUsedAt:
+                      anyOf:
+                      - type: string
+                      - type: 'null'
+                    createdAt:
+                      type: string
+                    numberScope:
+                      anyOf:
+                      - anyOf:
+                        - type: array
+                          items:
+                            type: string
+                        - type: 'null'
+                      - type: 'null'
+                    spendLimitCents:
+                      anyOf:
+                      - anyOf:
+                        - type: number
+                        - type: 'null'
+                      - type: 'null'
+                    spendLimitResetPeriod:
+                      anyOf:
+                      - anyOf:
+                        - type: string
+                          enum:
+                          - monthly
+                        - type: 'null'
+                      - type: 'null'
+                    spentThisPeriodCents:
+                      anyOf:
+                      - anyOf:
+                        - type: number
+                        - type: 'null'
+                      - type: 'null'
+                    canProvisionKeys:
+                      anyOf:
+                      - type: boolean
+                      - type: 'null'
+                    permissions:
+                      anyOf:
+                      - type: array
+                        items:
+                          type: string
+                      - type: 'null'
+                    mintedByTokenId:
+                      anyOf:
+                      - anyOf:
+                        - type: string
+                        - type: 'null'
+                      - type: 'null'
+                  required:
+                  - id
+                  - name
+                  - token
+                  - prefix
+                  - scopes
+                  - lastUsedAt
+                  - createdAt
+                  additionalProperties: false
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '403':
+          description: AuthorizationDenied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthorizationDenied'
+        '404':
+          description: WorkspaceNotFound
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkspaceNotFound'
+        '429':
+          description: RateLimited
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimited'
+        '500':
+          description: InternalError
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+      summary: List the workspace API tokens
+    servers:
+    - url: /
+      description: This worker
+  /workspaces/{slug}/webhooks:
+    get:
+      tags:
+      - Workspace
+      operationId: workspace.webhooks
+      parameters:
+      - name: slug
+        in: path
+        schema:
+          type: string
+          description: The workspace's URL slug.
+        required: true
+      security: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    url:
+                      type: string
+                      description: The HTTPS URL Saperly POSTs each subscribed event to.
+                    enabled:
+                      type: boolean
+                    events:
+                      type: array
+                      items:
+                        type: string
+                      description: The event types this endpoint is subscribed to.
+                    successRate:
+                      type: number
+                      allOf:
+                      - description: Delivery success rate (0–100) over all recorded attempts for this endpoint; 100 when there are none yet.
+                    signingSecret:
+                      type: string
+                      description: 'The endpoint signing secret (`whsec_…`). Verify each delivery by recomputing HMAC-SHA256 over `${x-saperly-timestamp}.${rawBody}` and comparing (constant-time) against the hex in the `x-saperly-signature: v1=<hex>` header.'
+                  required:
+                  - id
+                  - url
+                  - enabled
+                  - events
+                  - successRate
+                  - signingSecret
+                  additionalProperties: false
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '403':
+          description: AuthorizationDenied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthorizationDenied'
+        '404':
+          description: WorkspaceNotFound
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkspaceNotFound'
+        '429':
+          description: RateLimited
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimited'
+        '500':
+          description: InternalError
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+      description: Returns every webhook endpoint for the workspace, each including its full `signingSecret` (`whsec_…`) — the reveal surface, so the secret can be re-copied at any time to verify delivery signatures.
+      summary: List the workspace webhook endpoints
+    post:
+      tags:
+      - Workspace
+      operationId: workspace.create-webhook
+      parameters:
+      - name: slug
+        in: path
+        schema:
+          type: string
+          description: The workspace's URL slug.
+        required: true
+      security: []
+      responses:
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  url:
+                    type: string
+                    description: The HTTPS URL Saperly POSTs each subscribed event to.
+                  enabled:
+                    type: boolean
+                  events:
+                    type: array
+                    items:
+                      type: string
+                    description: The event types this endpoint is subscribed to.
+                  successRate:
+                    type: number
+                    allOf:
+                    - description: Delivery success rate (0–100) over all recorded attempts for this endpoint; 100 when there are none yet.
+                  signingSecret:
+                    type: string
+                    description: 'The endpoint signing secret (`whsec_…`). Verify each delivery by recomputing HMAC-SHA256 over `${x-saperly-timestamp}.${rawBody}` and comparing (constant-time) against the hex in the `x-saperly-signature: v1=<hex>` header.'
+                required:
+                - id
+                - url
+                - enabled
+                - events
+                - successRate
+                - signingSecret
+                additionalProperties: false
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '403':
+          description: AuthorizationDenied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthorizationDenied'
+        '404':
+          description: WorkspaceNotFound
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkspaceNotFound'
+        '429':
+          description: RateLimited
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimited'
+        '500':
+          description: InternalError
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+      description: 'Registers an outbound webhook endpoint and returns it with its full `signingSecret`. Use the secret to verify each delivery’s `x-saperly-signature: v1=` header (HMAC-SHA256 over `${x-saperly-timestamp}.${rawBody}`).'
+      summary: Create a webhook endpoint
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                url:
+                  type: string
+                  allOf:
+                  - minLength: 1
+                  - maxLength: 2048
+                    description: The HTTPS URL Saperly will POST each subscribed event to.
+                events:
+                  type: array
+                  items:
+                    type: string
+                  allOf:
+                  - minItems: 1
+                    description: The event types this endpoint subscribes to (e.g. `call.completed`, `message.received`). At least one.
+                description:
+                  anyOf:
+                  - type: string
+                    allOf:
+                    - maxLength: 500
+                      description: An optional human label for the endpoint.
+                  - type: 'null'
+              required:
+              - url
+              - events
+              additionalProperties: false
+              description: 'The new endpoint: the HTTPS `url` to POST events to, the `events` it subscribes to, and an optional `description`. The response includes the generated `signingSecret`.'
+        required: true
+    servers:
+    - url: /
+      description: This worker
+  /workspaces/{slug}/webhooks/{webhookId}/deliveries:
+    get:
+      tags:
+      - Workspace
+      operationId: workspace.webhook-deliveries
+      parameters:
+      - name: slug
+        in: path
+        schema:
+          type: string
+          description: The URL-safe slug identifying the workspace.
+        required: true
+      - name: webhookId
+        in: path
+        schema:
+          type: string
+          description: The id of the webhook endpoint whose delivery history to read.
+        required: true
+      security: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    eventType:
+                      type: string
+                      description: The event type that was delivered (e.g. `call.completed`).
+                    status:
+                      type: string
+                      description: 'The attempt outcome: `delivered` (a 2xx) or `failed`.'
+                    attempts:
+                      type: number
+                      allOf:
+                      - description: 'The global attempt number: 1 for the inline first attempt, ≥2 for a queued retry.'
+                    responseStatus:
+                      anyOf:
+                      - type: number
+                      - type: 'null'
+                      description: The HTTP status the receiver returned, or `null`/`0` when the request never got one (DNS/TLS/timeout — e.g. 530 = the receiver's origin/tunnel is unreachable).
+                    lastAttemptAt:
+                      anyOf:
+                      - type: string
+                      - type: 'null'
+                      description: ISO timestamp of this attempt.
+                    nextAttemptAt:
+                      anyOf:
+                      - type: string
+                      - type: 'null'
+                      description: ISO timestamp of the next scheduled retry, or `null` when none is pending.
+                  required:
+                  - id
+                  - eventType
+                  - status
+                  - attempts
+                  - responseStatus
+                  - lastAttemptAt
+                  - nextAttemptAt
+                  additionalProperties: false
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '403':
+          description: AuthorizationDenied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthorizationDenied'
+        '404':
+          description: WorkspaceNotFound
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkspaceNotFound'
+        '429':
+          description: RateLimited
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimited'
+        '500':
+          description: InternalError
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+      description: 'Returns the endpoint''s most recent delivery attempts (newest first), each with the event type, outcome (`delivered`/`failed`), HTTP `responseStatus`, attempt number, and timestamps — so you can see exactly why a delivery did or didn''t land (e.g. a run of `failed` with `responseStatus: 530` means your receiver is unreachable).'
+      summary: List a webhook endpoint's recent delivery attempts
+    servers:
+    - url: /
+      description: This worker
+  /workspaces/{slug}/audit-events:
+    get:
+      tags:
+      - Workspace
+      operationId: workspace.audit-events
+      parameters:
+      - name: slug
+        in: path
+        schema:
+          type: string
+          description: The workspace's URL slug.
+        required: true
+      security: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    eventType:
+                      type: string
+                    targetType:
+                      type: string
+                    actor:
+                      type: string
+                    createdAt:
+                      type: string
+                  required:
+                  - id
+                  - eventType
+                  - targetType
+                  - actor
+                  - createdAt
+                  additionalProperties: false
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '403':
+          description: AuthorizationDenied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthorizationDenied'
+        '404':
+          description: WorkspaceNotFound
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkspaceNotFound'
+        '429':
+          description: RateLimited
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimited'
+        '500':
+          description: InternalError
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+      summary: List the workspace audit-log events
+    servers:
+    - url: /
+      description: This worker
+components:
+  schemas:
+    RateLimited:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - RateLimited
+        bucket:
+          type: string
+          description: The rate-limit bucket that was exhausted.
+      required:
+      - _tag
+      - bucket
+      additionalProperties: false
+    Unauthorized:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - Unauthorized
+        message:
+          type: string
+          description: Why the request was rejected (missing, invalid, or insufficient credentials).
+      required:
+      - _tag
+      - message
+      additionalProperties: false
+    WorkspaceNotFound:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - WorkspaceNotFound
+        slug:
+          type: string
+      required:
+      - _tag
+      - slug
+      additionalProperties: false
+    InternalError:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - InternalError
+        traceId:
+          type: string
+          description: A correlation id for this failure — quote it when reporting the problem so the request can be traced.
+      required:
+      - _tag
+      - traceId
+      additionalProperties: false
+    AuthorizationDenied:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - AuthorizationDenied
+        reason:
+          type: string
+      required:
+      - _tag
+      - reason
+      additionalProperties: false
+x-refined-from:
+- api-saperly-com-openapi.json
+- saperly-openapi.yml

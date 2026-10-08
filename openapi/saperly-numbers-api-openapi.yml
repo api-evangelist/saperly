@@ -1,0 +1,1271 @@
+openapi: 3.2.0
+info:
+  title: Saperly Numbers API
+  version: 0.1.0
+  description: 'Operations tagged numbers across 2 of this provider''s published API definitions: api-saperly-com-openapi.json, saperly-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: /
+  description: This worker
+- url: https://api.saperly.com
+  description: Production
+security: []
+tags:
+- name: Numbers
+  description: Phone numbers — provision, list, release, and configure the lines in your workspace. Bind a connection to a number to make it answer calls and messages, set a per-number webhook, and override the SMS sender id or caller ID name. The fleet belongs to the workspace your API key resolves to.
+paths:
+  /numbers:
+    get:
+      tags:
+      - Numbers
+      operationId: numbers.list
+      parameters: []
+      security: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    phoneNumber:
+                      type: string
+                    connectionId:
+                      anyOf:
+                      - type: string
+                      - type: 'null'
+                    webhookUrl:
+                      anyOf:
+                      - type: string
+                      - type: 'null'
+                    smsSenderId:
+                      anyOf:
+                      - type: string
+                      - type: 'null'
+                    callerIdName:
+                      anyOf:
+                      - type: string
+                      - type: 'null'
+                    country:
+                      anyOf:
+                      - type: string
+                      - type: 'null'
+                    numberType:
+                      anyOf:
+                      - type: string
+                      - type: 'null'
+                    monthlyPriceCents:
+                      anyOf:
+                      - type: number
+                      - type: 'null'
+                    currency:
+                      anyOf:
+                      - type: string
+                      - type: 'null'
+                    nextChargeAt:
+                      anyOf:
+                      - type: string
+                      - type: 'null'
+                    releasedAt:
+                      anyOf:
+                      - type: string
+                      - type: 'null'
+                    createdAt:
+                      type: string
+                  required:
+                  - id
+                  - phoneNumber
+                  - connectionId
+                  - webhookUrl
+                  - country
+                  - numberType
+                  - monthlyPriceCents
+                  - currency
+                  - nextChargeAt
+                  - releasedAt
+                  - createdAt
+                  additionalProperties: false
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '403':
+          description: AuthorizationDenied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthorizationDenied'
+        '429':
+          description: RateLimited
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimited'
+        '500':
+          description: InternalError
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+      summary: List all phone numbers in the workspace
+    post:
+      tags:
+      - Numbers
+      operationId: numbers.provision
+      parameters: []
+      security: []
+      responses:
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  phoneNumber:
+                    type: string
+                  connectionId:
+                    anyOf:
+                    - type: string
+                    - type: 'null'
+                  webhookUrl:
+                    anyOf:
+                    - type: string
+                    - type: 'null'
+                  smsSenderId:
+                    anyOf:
+                    - type: string
+                    - type: 'null'
+                  callerIdName:
+                    anyOf:
+                    - type: string
+                    - type: 'null'
+                  country:
+                    anyOf:
+                    - type: string
+                    - type: 'null'
+                  numberType:
+                    anyOf:
+                    - type: string
+                    - type: 'null'
+                  monthlyPriceCents:
+                    anyOf:
+                    - type: number
+                    - type: 'null'
+                  currency:
+                    anyOf:
+                    - type: string
+                    - type: 'null'
+                  nextChargeAt:
+                    anyOf:
+                    - type: string
+                    - type: 'null'
+                  releasedAt:
+                    anyOf:
+                    - type: string
+                    - type: 'null'
+                  createdAt:
+                    type: string
+                required:
+                - id
+                - phoneNumber
+                - connectionId
+                - webhookUrl
+                - country
+                - numberType
+                - monthlyPriceCents
+                - currency
+                - nextChargeAt
+                - releasedAt
+                - createdAt
+                additionalProperties: false
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '402':
+          description: InsufficientFunds | PaymentMethodRequired
+          content:
+            application/json:
+              schema:
+                anyOf:
+                - $ref: '#/components/schemas/InsufficientFunds'
+                - $ref: '#/components/schemas/PaymentMethodRequired'
+        '403':
+          description: AuthorizationDenied | CountryNotAvailable
+          content:
+            application/json:
+              schema:
+                anyOf:
+                - $ref: '#/components/schemas/AuthorizationDenied'
+                - $ref: '#/components/schemas/CountryNotAvailable'
+        '404':
+          description: NoNumbersAvailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NoNumbersAvailable'
+        '409':
+          description: NumberQuotaExceeded | PriceChanged | IdempotencyConflict
+          content:
+            application/json:
+              schema:
+                anyOf:
+                - $ref: '#/components/schemas/NumberQuotaExceeded'
+                - $ref: '#/components/schemas/PriceChanged'
+                - $ref: '#/components/schemas/IdempotencyConflict'
+        '422':
+          description: IdempotencyKeyMismatch
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IdempotencyKeyMismatch'
+        '429':
+          description: RateLimited
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimited'
+        '500':
+          description: InternalError
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+        '502':
+          description: UpstreamError
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpstreamError'
+      summary: Provision a phone number
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                country:
+                  anyOf:
+                  - type: string
+                    description: ISO 3166-1 alpha-2 country code to provision a number in (e.g. `US`, `GB`). Defaults to `US`.
+                  - type: 'null'
+                numberType:
+                  anyOf:
+                  - type: string
+                    description: The kind of number to provision (e.g. `local`, `toll_free`, `mobile`, `national`). Defaults to `local`.
+                  - type: 'null'
+                areaCode:
+                  anyOf:
+                  - type: string
+                    description: Preferred area code / city prefix to search within the country (e.g. `415`). Omit to take any available number.
+                  - type: 'null'
+                expectedMonthlyPriceCents:
+                  anyOf:
+                  - type: number
+                    allOf:
+                    - description: 'The monthly price (in cents) you quoted to the customer. If the live order price exceeds it, provision fails with `PriceChanged` instead of charging — resubmit with `approveHigherPrice: true` to accept the higher price.'
+                  - type: 'null'
+                expectedUpfrontPriceCents:
+                  anyOf:
+                  - type: number
+                    allOf:
+                    - description: 'The one-time upfront price (in cents) you quoted to the customer. If the live order price exceeds it, provision fails with `PriceChanged` instead of charging — resubmit with `approveHigherPrice: true` to accept the higher price.'
+                  - type: 'null'
+                approveHigherPrice:
+                  anyOf:
+                  - type: boolean
+                    description: Set true to accept a live order price higher than the `expected*` values you quoted, instead of failing with `PriceChanged`.
+                  - type: 'null'
+              additionalProperties: false
+        required: true
+    servers:
+    - url: /
+      description: This worker
+  /numbers/{id}:
+    get:
+      tags:
+      - Numbers
+      operationId: numbers.get
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: string
+          description: The phone number's id.
+        required: true
+      security: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  phoneNumber:
+                    type: string
+                  connectionId:
+                    anyOf:
+                    - type: string
+                    - type: 'null'
+                  webhookUrl:
+                    anyOf:
+                    - type: string
+                    - type: 'null'
+                  smsSenderId:
+                    anyOf:
+                    - type: string
+                    - type: 'null'
+                  callerIdName:
+                    anyOf:
+                    - type: string
+                    - type: 'null'
+                  country:
+                    anyOf:
+                    - type: string
+                    - type: 'null'
+                  numberType:
+                    anyOf:
+                    - type: string
+                    - type: 'null'
+                  monthlyPriceCents:
+                    anyOf:
+                    - type: number
+                    - type: 'null'
+                  currency:
+                    anyOf:
+                    - type: string
+                    - type: 'null'
+                  nextChargeAt:
+                    anyOf:
+                    - type: string
+                    - type: 'null'
+                  releasedAt:
+                    anyOf:
+                    - type: string
+                    - type: 'null'
+                  createdAt:
+                    type: string
+                required:
+                - id
+                - phoneNumber
+                - connectionId
+                - webhookUrl
+                - country
+                - numberType
+                - monthlyPriceCents
+                - currency
+                - nextChargeAt
+                - releasedAt
+                - createdAt
+                additionalProperties: false
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '403':
+          description: AuthorizationDenied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthorizationDenied'
+        '404':
+          description: NumberNotFound
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NumberNotFound'
+        '429':
+          description: RateLimited
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimited'
+        '500':
+          description: InternalError
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+      summary: Get a phone number by id
+    servers:
+    - url: /
+      description: This worker
+  /numbers/{id}/release:
+    post:
+      tags:
+      - Numbers
+      operationId: numbers.release
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: string
+          description: The phone number's id.
+        required: true
+      security: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum:
+                    - released
+                required:
+                - status
+                additionalProperties: false
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '403':
+          description: AuthorizationDenied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthorizationDenied'
+        '404':
+          description: NumberNotFound
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NumberNotFound'
+        '429':
+          description: RateLimited
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimited'
+        '500':
+          description: InternalError
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+        '502':
+          description: UpstreamError
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpstreamError'
+      summary: Release a phone number
+    servers:
+    - url: /
+      description: This worker
+  /numbers/{id}/connection:
+    post:
+      tags:
+      - Numbers
+      operationId: numbers.assignConnection
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: string
+          description: The phone number's id.
+        required: true
+      security: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  phoneNumber:
+                    type: string
+                  connectionId:
+                    anyOf:
+                    - type: string
+                    - type: 'null'
+                  webhookUrl:
+                    anyOf:
+                    - type: string
+                    - type: 'null'
+                  smsSenderId:
+                    anyOf:
+                    - type: string
+                    - type: 'null'
+                  callerIdName:
+                    anyOf:
+                    - type: string
+                    - type: 'null'
+                  country:
+                    anyOf:
+                    - type: string
+                    - type: 'null'
+                  numberType:
+                    anyOf:
+                    - type: string
+                    - type: 'null'
+                  monthlyPriceCents:
+                    anyOf:
+                    - type: number
+                    - type: 'null'
+                  currency:
+                    anyOf:
+                    - type: string
+                    - type: 'null'
+                  nextChargeAt:
+                    anyOf:
+                    - type: string
+                    - type: 'null'
+                  releasedAt:
+                    anyOf:
+                    - type: string
+                    - type: 'null'
+                  createdAt:
+                    type: string
+                required:
+                - id
+                - phoneNumber
+                - connectionId
+                - webhookUrl
+                - country
+                - numberType
+                - monthlyPriceCents
+                - currency
+                - nextChargeAt
+                - releasedAt
+                - createdAt
+                additionalProperties: false
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '403':
+          description: AuthorizationDenied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthorizationDenied'
+        '404':
+          description: NumberNotFound
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NumberNotFound'
+        '429':
+          description: RateLimited
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimited'
+        '500':
+          description: InternalError
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+        '502':
+          description: UpstreamError
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpstreamError'
+      summary: Bind a connection to a number
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                connectionId:
+                  type: string
+                  description: The id of the connection to bind to this number. The connection becomes the handler that answers calls and messages on the line.
+              required:
+              - connectionId
+              additionalProperties: false
+        required: true
+    servers:
+    - url: /
+      description: This worker
+  /numbers/{id}/webhook:
+    post:
+      tags:
+      - Numbers
+      operationId: numbers.setWebhook
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: string
+          description: The phone number's id.
+        required: true
+      security: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  phoneNumber:
+                    type: string
+                  connectionId:
+                    anyOf:
+                    - type: string
+                    - type: 'null'
+                  webhookUrl:
+                    anyOf:
+                    - type: string
+                    - type: 'null'
+                  smsSenderId:
+                    anyOf:
+                    - type: string
+                    - type: 'null'
+                  callerIdName:
+                    anyOf:
+                    - type: string
+                    - type: 'null'
+                  country:
+                    anyOf:
+                    - type: string
+                    - type: 'null'
+                  numberType:
+                    anyOf:
+                    - type: string
+                    - type: 'null'
+                  monthlyPriceCents:
+                    anyOf:
+                    - type: number
+                    - type: 'null'
+                  currency:
+                    anyOf:
+                    - type: string
+                    - type: 'null'
+                  nextChargeAt:
+                    anyOf:
+                    - type: string
+                    - type: 'null'
+                  releasedAt:
+                    anyOf:
+                    - type: string
+                    - type: 'null'
+                  createdAt:
+                    type: string
+                required:
+                - id
+                - phoneNumber
+                - connectionId
+                - webhookUrl
+                - country
+                - numberType
+                - monthlyPriceCents
+                - currency
+                - nextChargeAt
+                - releasedAt
+                - createdAt
+                additionalProperties: false
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '403':
+          description: AuthorizationDenied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthorizationDenied'
+        '404':
+          description: NumberNotFound
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NumberNotFound'
+        '429':
+          description: RateLimited
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimited'
+        '500':
+          description: InternalError
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+      description: Sets the per-number manual-mode conversation-brain URL (a fallback for the connection's `manualWebhookUrl`). NOT an event-notification webhook — to receive call/SMS events, register a workspace webhook endpoint via `POST /workspaces/:slug/webhooks`.
+      summary: Set a number's manual-mode brain URL
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                url:
+                  type: string
+                  description: 'The per-number MANUAL-mode brain URL: a public `https://` endpoint Saperly POSTs each conversation turn to for a manual-mode line, as a fallback when the connection has no `manualWebhookUrl` and no live agent socket. This is NOT for receiving call/SMS event notifications — for those, register a workspace webhook endpoint (`POST /workspaces/:slug/webhooks`).'
+              required:
+              - url
+              additionalProperties: false
+        required: true
+    servers:
+    - url: /
+      description: This worker
+  /numbers/{id}/sms-sender:
+    post:
+      tags:
+      - Numbers
+      operationId: numbers.setSmsSenderId
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: string
+          description: The phone number's id.
+        required: true
+      security: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  phoneNumber:
+                    type: string
+                  connectionId:
+                    anyOf:
+                    - type: string
+                    - type: 'null'
+                  webhookUrl:
+                    anyOf:
+                    - type: string
+                    - type: 'null'
+                  smsSenderId:
+                    anyOf:
+                    - type: string
+                    - type: 'null'
+                  callerIdName:
+                    anyOf:
+                    - type: string
+                    - type: 'null'
+                  country:
+                    anyOf:
+                    - type: string
+                    - type: 'null'
+                  numberType:
+                    anyOf:
+                    - type: string
+                    - type: 'null'
+                  monthlyPriceCents:
+                    anyOf:
+                    - type: number
+                    - type: 'null'
+                  currency:
+                    anyOf:
+                    - type: string
+                    - type: 'null'
+                  nextChargeAt:
+                    anyOf:
+                    - type: string
+                    - type: 'null'
+                  releasedAt:
+                    anyOf:
+                    - type: string
+                    - type: 'null'
+                  createdAt:
+                    type: string
+                required:
+                - id
+                - phoneNumber
+                - connectionId
+                - webhookUrl
+                - country
+                - numberType
+                - monthlyPriceCents
+                - currency
+                - nextChargeAt
+                - releasedAt
+                - createdAt
+                additionalProperties: false
+        '400':
+          description: InvalidSmsSenderId
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidSmsSenderId'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '403':
+          description: AuthorizationDenied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthorizationDenied'
+        '404':
+          description: NumberNotFound
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NumberNotFound'
+        '429':
+          description: RateLimited
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimited'
+        '500':
+          description: InternalError
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+      summary: Set the alphanumeric SMS sender id
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                smsSenderId:
+                  anyOf:
+                  - type: string
+                  - type: 'null'
+                  description: Alphanumeric sender id (1–11 alphanumeric characters) to present on international SMS, or `null` to clear the override and send from the phone number itself.
+              required:
+              - smsSenderId
+              additionalProperties: false
+        required: true
+    servers:
+    - url: /
+      description: This worker
+  /numbers/{id}/caller-id:
+    post:
+      tags:
+      - Numbers
+      operationId: numbers.setCallerIdName
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: string
+          description: The phone number's id.
+        required: true
+      security: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  phoneNumber:
+                    type: string
+                  connectionId:
+                    anyOf:
+                    - type: string
+                    - type: 'null'
+                  webhookUrl:
+                    anyOf:
+                    - type: string
+                    - type: 'null'
+                  smsSenderId:
+                    anyOf:
+                    - type: string
+                    - type: 'null'
+                  callerIdName:
+                    anyOf:
+                    - type: string
+                    - type: 'null'
+                  country:
+                    anyOf:
+                    - type: string
+                    - type: 'null'
+                  numberType:
+                    anyOf:
+                    - type: string
+                    - type: 'null'
+                  monthlyPriceCents:
+                    anyOf:
+                    - type: number
+                    - type: 'null'
+                  currency:
+                    anyOf:
+                    - type: string
+                    - type: 'null'
+                  nextChargeAt:
+                    anyOf:
+                    - type: string
+                    - type: 'null'
+                  releasedAt:
+                    anyOf:
+                    - type: string
+                    - type: 'null'
+                  createdAt:
+                    type: string
+                required:
+                - id
+                - phoneNumber
+                - connectionId
+                - webhookUrl
+                - country
+                - numberType
+                - monthlyPriceCents
+                - currency
+                - nextChargeAt
+                - releasedAt
+                - createdAt
+                additionalProperties: false
+        '400':
+          description: InvalidCallerIdName
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidCallerIdName'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '403':
+          description: AuthorizationDenied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthorizationDenied'
+        '404':
+          description: NumberNotFound
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NumberNotFound'
+        '429':
+          description: RateLimited
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimited'
+        '500':
+          description: InternalError
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+        '502':
+          description: UpstreamError
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpstreamError'
+      summary: Set the outbound caller ID name (CNAM)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                callerIdName:
+                  anyOf:
+                  - type: string
+                  - type: 'null'
+                  description: Outbound caller ID name (1–15 letters, digits, or spaces) registered as the line's CNAM listing, or `null` to clear it and show the bare number.
+              required:
+              - callerIdName
+              additionalProperties: false
+        required: true
+    servers:
+    - url: /
+      description: This worker
+components:
+  schemas:
+    UpstreamError:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - UpstreamError
+        status:
+          type: number
+          allOf:
+          - description: The HTTP status the carrier returned upstream.
+        code:
+          type: string
+          description: A short machine-readable code for the upstream failure.
+        message:
+          type: string
+          description: A human-readable description of the upstream failure (carrier identity scrubbed).
+      required:
+      - _tag
+      - status
+      - code
+      - message
+      additionalProperties: false
+    RateLimited:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - RateLimited
+        bucket:
+          type: string
+          description: The rate-limit bucket that was exhausted.
+      required:
+      - _tag
+      - bucket
+      additionalProperties: false
+    Unauthorized:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - Unauthorized
+        message:
+          type: string
+          description: Why the request was rejected (missing, invalid, or insufficient credentials).
+      required:
+      - _tag
+      - message
+      additionalProperties: false
+    IdempotencyConflict:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - IdempotencyConflict
+        message:
+          type: string
+          description: Details of the conflict — a concurrent request is still processing under the same `Idempotency-Key`.
+      required:
+      - _tag
+      - message
+      additionalProperties: false
+    InvalidCallerIdName:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - InvalidCallerIdName
+        reason:
+          type: string
+      required:
+      - _tag
+      - reason
+      additionalProperties: false
+    PriceChanged:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - PriceChanged
+        phoneNumber:
+          type: string
+        actualMonthlyPriceCents:
+          type: number
+        actualUpfrontPriceCents:
+          type: number
+        expectedMonthlyPriceCents:
+          type: number
+        expectedUpfrontPriceCents:
+          type: number
+        currency:
+          type: string
+      required:
+      - _tag
+      - phoneNumber
+      - actualMonthlyPriceCents
+      - actualUpfrontPriceCents
+      - expectedMonthlyPriceCents
+      - expectedUpfrontPriceCents
+      - currency
+      additionalProperties: false
+    InsufficientFunds:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - InsufficientFunds
+        balanceCents:
+          type: number
+        requestedCents:
+          type: number
+      required:
+      - _tag
+      - balanceCents
+      - requestedCents
+      additionalProperties: false
+    PaymentMethodRequired:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - PaymentMethodRequired
+        activeNumbers:
+          type: number
+        message:
+          type: string
+      required:
+      - _tag
+      - activeNumbers
+      - message
+      additionalProperties: false
+    InternalError:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - InternalError
+        traceId:
+          type: string
+          description: A correlation id for this failure — quote it when reporting the problem so the request can be traced.
+      required:
+      - _tag
+      - traceId
+      additionalProperties: false
+    NoNumbersAvailable:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - NoNumbersAvailable
+        country:
+          type: string
+        numberType:
+          type: string
+      required:
+      - _tag
+      - country
+      - numberType
+      additionalProperties: false
+    CountryNotAvailable:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - CountryNotAvailable
+        country:
+          type: string
+        message:
+          type: string
+      required:
+      - _tag
+      - country
+      - message
+      additionalProperties: false
+    InvalidSmsSenderId:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - InvalidSmsSenderId
+        reason:
+          type: string
+      required:
+      - _tag
+      - reason
+      additionalProperties: false
+    NumberQuotaExceeded:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - NumberQuotaExceeded
+        limit:
+          type: number
+        current:
+          type: number
+      required:
+      - _tag
+      - limit
+      - current
+      additionalProperties: false
+    AuthorizationDenied:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - AuthorizationDenied
+        reason:
+          type: string
+      required:
+      - _tag
+      - reason
+      additionalProperties: false
+    NumberNotFound:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - NumberNotFound
+        numberId:
+          type: string
+      required:
+      - _tag
+      - numberId
+      additionalProperties: false
+    IdempotencyKeyMismatch:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - IdempotencyKeyMismatch
+        message:
+          type: string
+          description: Why the `Idempotency-Key` is unprocessable — either malformed (e.g. over the length cap) or reused for a request with a different payload.
+      required:
+      - _tag
+      - message
+      additionalProperties: false
+x-refined-from:
+- api-saperly-com-openapi.json
+- saperly-openapi.yml

@@ -1,0 +1,55 @@
+{
+  "provider": "saperly",
+  "sources": [
+    "_original/api-saperly-com-openapi.json",
+    "saperly-openapi.yml"
+  ],
+  "outputs": [
+    "saperly-api-token-registry-api-openapi.yml",
+    "saperly-assistant-api-openapi.yml",
+    "saperly-connections-api-openapi.yml",
+    "saperly-consent-api-openapi.yml",
+    "saperly-customvoices-api-openapi.yml",
+    "saperly-health-api-openapi.yml",
+    "saperly-keys-api-openapi.yml",
+    "saperly-languages-api-openapi.yml",
+    "saperly-messaging-api-openapi.yml",
+    "saperly-numbers-api-openapi.yml",
+    "saperly-pricing-api-openapi.yml",
+    "saperly-usage-api-openapi.yml",
+    "saperly-voice-api-openapi.yml",
+    "saperly-voices-api-openapi.yml",
+    "saperly-workspace-api-openapi.yml",
+    "saperly-workspace-invitations-api-openapi.yml"
+  ],
+  "archived": [
+    "archived openapi/saperly-openapi.yml"
+  ],
+  "errors": [],
+  "warnings": [],
+  "notes": [
+    "1 archived document(s) dropped as subsets of other archived documents",
+    "sourced from openapi/_original/ (1 archived document(s)); previously refined output at the top level was skipped rather than re-split",
+    "api-saperly-com-openapi.json: upgraded openapi 3.1.0 -> OpenAPI 3.2.0",
+    "tag 'api-token-registry' spans 2 source specs (api-saperly-com-openapi.json, saperly-openapi.yml): per-path servers applied",
+    "tag 'assistant' spans 2 source specs (api-saperly-com-openapi.json, saperly-openapi.yml): per-path servers applied",
+    "tag 'connections' spans 2 source specs (api-saperly-com-openapi.json, saperly-openapi.yml): per-path servers applied",
+    "tag 'consent' spans 2 source specs (api-saperly-com-openapi.json, saperly-openapi.yml): per-path servers applied",
+    "tag 'customVoices' spans 2 source specs (api-saperly-com-openapi.json, saperly-openapi.yml): per-path servers applied",
+    "tag 'health' spans 2 source specs (api-saperly-com-openapi.json, saperly-openapi.yml): per-path servers applied",
+    "tag 'keys' spans 2 source specs (api-saperly-com-openapi.json, saperly-openapi.yml): per-path servers applied",
+    "tag 'languages' spans 2 source specs (api-saperly-com-openapi.json, saperly-openapi.yml): per-path servers applied",
+    "tag 'messaging' spans 2 source specs (api-saperly-com-openapi.json, saperly-openapi.yml): per-path servers applied",
+    "tag 'numbers' spans 2 source specs (api-saperly-com-openapi.json, saperly-openapi.yml): per-path servers applied",
+    "tag 'pricing' spans 2 source specs (api-saperly-com-openapi.json, saperly-openapi.yml): per-path servers applied",
+    "tag 'usage' spans 2 source specs (api-saperly-com-openapi.json, saperly-openapi.yml): per-path servers applied",
+    "tag 'voice' spans 2 source specs (api-saperly-com-openapi.json, saperly-openapi.yml): per-path servers applied",
+    "tag 'voices' spans 2 source specs (api-saperly-com-openapi.json, saperly-openapi.yml): per-path servers applied",
+    "tag 'workspace' spans 2 source specs (api-saperly-com-openapi.json, saperly-openapi.yml): per-path servers applied",
+    "tag 'workspace-invitations' spans 2 source specs (api-saperly-com-openapi.json, saperly-openapi.yml): per-path servers applied",
+    "apis.yml register: written (+16 apis, 16 total)"
+  ],
+  "skipped": [
+    "_original/saperly-com-openapi-bundled.json: archived document superseded by a larger archived document"
+  ]
+}

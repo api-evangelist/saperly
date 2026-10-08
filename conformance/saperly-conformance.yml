@@ -1,0 +1,74 @@
+generated: '2026-10-07'
+method: searched
+source: live probes of https://api.saperly.com/.well-known/oauth-protected-resource and https://saperly.com/.well-known/oauth-authorization-server
+  (2026-10-07); https://saperly.com/docs/guides/errors-and-idempotency; https://saperly.com/docs/guides/compliance; https://saperly.com/docs/sdks/mcp;
+  https://saperly.com/security
+standards:
+- id: rfc9728
+  name: OAuth 2.0 Protected Resource Metadata
+  conforms: true
+  evidence: https://api.saperly.com/.well-known/oauth-protected-resource returned 200 {"resource":"https://api.saperly.com/mcp","authorization_servers":["https://saperly.com"],"bearer_methods_supported":["header"]};
+    the 401 on /mcp carries resource_metadata in WWW-Authenticate
+- id: rfc8414
+  name: OAuth 2.0 Authorization Server Metadata
+  conforms: true
+  evidence: https://saperly.com/.well-known/oauth-authorization-server returned 200 with issuer https://saperly.com, authorization/token/registration/jwks
+    endpoints
+- id: oauth2
+  name: OAuth 2.0 authorization code
+  conforms: true
+  evidence: grant_types_supported ["authorization_code","refresh_token"], response_types_supported ["code"] in the AS metadata; the MCP docs accept
+    "an MCP OAuth access token"
+- id: rfc7636
+  name: PKCE
+  conforms: true
+  evidence: code_challenge_methods_supported ["S256"] in https://saperly.com/.well-known/oauth-authorization-server
+- id: rfc7591
+  name: OAuth 2.0 Dynamic Client Registration
+  conforms: true
+  evidence: registration_endpoint https://saperly.com/api/auth/mcp/register in the AS metadata; the saperly-mcp README describes clients doing
+    "discovery + dynamic registration + PKCE"
+- id: oidc
+  name: OpenID Connect
+  conforms: true
+  evidence: AS metadata advertises userinfo_endpoint, jwks_uri, id_token_signing_alg_values_supported [RS256], scopes openid/profile/email and
+    claims sub/email/name; note /.well-known/openid-configuration itself returned 404 on both hosts
+- id: mcp
+  name: Model Context Protocol (Streamable HTTP)
+  conforms: true
+  evidence: 'https://saperly.com/docs/sdks/mcp: "It speaks the Streamable HTTP transport (JSON-RPC 2.0)"; POST https://api.saperly.com/mcp answered
+    401 with a Bearer challenge and exposed mcp-session-id'
+- id: idempotency-key
+  name: IETF Idempotency-Key header (draft-ietf-httpapi-idempotency-key-header)
+  conforms: true
+  evidence: 'https://saperly.com/docs/guides/errors-and-idempotency: "Every mutating endpoint accepts the standard IETF Idempotency-Key header
+    — a UUID v4"'
+- id: e164
+  name: E.164 phone number format
+  conforms: true
+  evidence: 'https://saperly.com/docs/guides/compliance ConsentRecord: "peerNumber string The peer, in E.164 (e.g. +15555550123)"'
+- id: 10dlc
+  name: US A2P 10DLC brand/campaign registration (The Campaign Registry)
+  conforms: true
+  evidence: 'https://saperly.com/docs/guides/compliance: brand, campaign and number-assignment registration with registry statuses (draft/submitted/verified/vetted,
+    approved/declined); https://saperly.com/security: "Saperly registers your brand and campaign for 10DLC as part of provisioning"'
+- id: tcpa
+  name: TCPA consent and AI disclosure
+  conforms: true
+  evidence: 'https://saperly.com/docs/guides/compliance: "Saperly bakes TCPA compliance in. Consent, disclosures, and 10DLC registration are first-class
+    objects"; consent types implied_inbound / explicit_outbound checked on every outbound message and call'
+- id: rfc9457
+  name: Problem Details (application/problem+json)
+  conforms: false
+  evidence: errors are tagged JSON bodies discriminated by a _tag field (https://saperly.com/docs/guides/errors-and-idempotency), not problem+json
+- id: pci-dss
+  name: PCI DSS
+  conforms: false
+  evidence: https://saperly.com/security claims only "a PCI-compliant payment processor for payments"; no PCI certification is claimed for Saperly
+    itself
+- id: openapi-3.2
+  conforms: true
+  evidence: the document declares 3.2.0
+- id: idempotency
+  conforms: true
+  evidence: idempotency-key declared on 1 of 24 mutating operations (partial)

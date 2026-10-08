@@ -1,0 +1,46 @@
+generated: '2026-10-07'
+method: generated
+source: Packaged Agent Skills generated from the Saperly OpenAPI contract and docs; every step is grounded in an
+  operationId verified in ../openapi/saperly-openapi.yml. saperly-AGENTS.md is the provider's own agent guide saved
+  verbatim from https://saperly.com/AGENTS.md.
+skills:
+- file: saperly-provision-number-and-attach-connection.md
+  name: provision-number-and-attach-connection
+  api: openapi/saperly-openapi.yml
+  operations:
+  - pricing.quote
+  - connections.create
+  - numbers.provision
+  - numbers.assignConnection
+  - numbers.get
+- file: saperly-send-sms-with-consent.md
+  name: send-sms-with-consent
+  api: openapi/saperly-openapi.yml
+  operations:
+  - consent.check
+  - consent.record
+  - messaging.send
+  - messaging.list
+  - consent.revoke
+- file: saperly-place-and-control-a-call.md
+  name: place-and-control-a-call
+  api: openapi/saperly-openapi.yml
+  operations:
+  - voice.place
+  - voice.get
+  - voice.list
+  - voice.transfer
+  - voice.end
+  - voice.recording
+  - voice.transcript
+- file: saperly-mint-scoped-child-keys.md
+  name: mint-scoped-child-keys
+  api: openapi/saperly-openapi.yml
+  operations:
+  - keys.mint
+  - keys.list
+  - keys.revoke
+provider_published:
+- file: ../llms/saperly-AGENTS.md
+  source: https://saperly.com/AGENTS.md
+  method: searched

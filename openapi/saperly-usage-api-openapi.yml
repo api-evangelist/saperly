@@ -1,0 +1,155 @@
+openapi: 3.2.0
+info:
+  title: Saperly Usage API
+  version: 0.1.0
+  description: 'Operations tagged usage across 2 of this provider''s published API definitions: api-saperly-com-openapi.json, saperly-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: /
+  description: This worker
+- url: https://api.saperly.com
+  description: Production
+security: []
+tags:
+- name: Usage
+  description: Read metered usage for the workspace — call and message counts, total call cost and duration, and the current prepaid balance. Aggregated over an optional time window; the balance is point-in-time.
+paths:
+  /usage:
+    get:
+      tags:
+      - Usage
+      operationId: usage.summary
+      parameters:
+      - name: since
+        in: query
+        schema:
+          anyOf:
+          - type: string
+            description: Lower bound of the reporting window as an ISO-8601 timestamp (e.g. `2026-01-01T00:00:00Z`). Only usage at or after this instant is counted. Omit for all-time totals.
+          - type: 'null'
+        required: false
+      security: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  calls:
+                    type: object
+                    properties:
+                      count:
+                        type: number
+                      totalCostCents:
+                        type: number
+                      totalDurationSec:
+                        type: number
+                    required:
+                    - count
+                    - totalCostCents
+                    - totalDurationSec
+                    additionalProperties: false
+                  messages:
+                    type: object
+                    properties:
+                      count:
+                        type: number
+                    required:
+                    - count
+                    additionalProperties: false
+                  balanceCents:
+                    type: number
+                required:
+                - calls
+                - messages
+                - balanceCents
+                additionalProperties: false
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '403':
+          description: AuthorizationDenied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthorizationDenied'
+        '429':
+          description: RateLimited
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimited'
+        '500':
+          description: InternalError
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+      summary: Get a usage summary (optionally since a timestamp)
+    servers:
+    - url: /
+      description: This worker
+components:
+  schemas:
+    AuthorizationDenied:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - AuthorizationDenied
+        reason:
+          type: string
+      required:
+      - _tag
+      - reason
+      additionalProperties: false
+    RateLimited:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - RateLimited
+        bucket:
+          type: string
+          description: The rate-limit bucket that was exhausted.
+      required:
+      - _tag
+      - bucket
+      additionalProperties: false
+    Unauthorized:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - Unauthorized
+        message:
+          type: string
+          description: Why the request was rejected (missing, invalid, or insufficient credentials).
+      required:
+      - _tag
+      - message
+      additionalProperties: false
+    InternalError:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - InternalError
+        traceId:
+          type: string
+          description: A correlation id for this failure — quote it when reporting the problem so the request can be traced.
+      required:
+      - _tag
+      - traceId
+      additionalProperties: false
+x-refined-from:
+- api-saperly-com-openapi.json
+- saperly-openapi.yml

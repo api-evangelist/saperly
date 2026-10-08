@@ -1,0 +1,168 @@
+{
+  "@context": {
+    "@vocab": "https://saperly.com/schema#",
+    "schema": "https://schema.org/",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "dcterms": "http://purl.org/dc/terms/",
+    "saperly": "https://saperly.com/schema#",
+    "WorkspaceNotFound": "saperly:WorkspaceNotFound",
+    "_tag": {
+      "@id": "saperly:_tag",
+      "@type": "xsd:string"
+    },
+    "slug": {
+      "@id": "saperly:slug",
+      "@type": "xsd:string"
+    },
+    "InternalError": "saperly:InternalError",
+    "traceId": {
+      "@id": "saperly:traceId",
+      "@type": "xsd:string"
+    },
+    "Unauthorized": "saperly:Unauthorized",
+    "message": {
+      "@id": "saperly:message",
+      "@type": "xsd:string"
+    },
+    "AuthorizationDenied": "saperly:AuthorizationDenied",
+    "reason": {
+      "@id": "saperly:reason",
+      "@type": "xsd:string"
+    },
+    "RateLimited": "saperly:RateLimited",
+    "bucket": {
+      "@id": "saperly:bucket",
+      "@type": "xsd:string"
+    },
+    "AssistantUnavailable": "saperly:AssistantUnavailable",
+    "NumberNotFound": "saperly:NumberNotFound",
+    "numberId": {
+      "@id": "saperly:numberId",
+      "@type": "xsd:string"
+    },
+    "CountryNotAvailable": "saperly:CountryNotAvailable",
+    "country": {
+      "@id": "saperly:country",
+      "@type": "xsd:string"
+    },
+    "NumberQuotaExceeded": "saperly:NumberQuotaExceeded",
+    "limit": {
+      "@id": "saperly:limit",
+      "@type": "xsd:decimal"
+    },
+    "current": {
+      "@id": "saperly:current",
+      "@type": "xsd:decimal"
+    },
+    "PriceChanged": "saperly:PriceChanged",
+    "phoneNumber": {
+      "@id": "saperly:phoneNumber",
+      "@type": "xsd:string"
+    },
+    "actualMonthlyPriceCents": {
+      "@id": "saperly:actualMonthlyPriceCents",
+      "@type": "xsd:decimal"
+    },
+    "actualUpfrontPriceCents": {
+      "@id": "saperly:actualUpfrontPriceCents",
+      "@type": "xsd:decimal"
+    },
+    "expectedMonthlyPriceCents": {
+      "@id": "saperly:expectedMonthlyPriceCents",
+      "@type": "xsd:decimal"
+    },
+    "expectedUpfrontPriceCents": {
+      "@id": "saperly:expectedUpfrontPriceCents",
+      "@type": "xsd:decimal"
+    },
+    "currency": {
+      "@id": "saperly:currency",
+      "@type": "xsd:string"
+    },
+    "IdempotencyConflict": "saperly:IdempotencyConflict",
+    "NoNumbersAvailable": "saperly:NoNumbersAvailable",
+    "numberType": {
+      "@id": "saperly:numberType",
+      "@type": "xsd:string"
+    },
+    "InsufficientFunds": "saperly:InsufficientFunds",
+    "balanceCents": {
+      "@id": "saperly:balanceCents",
+      "@type": "xsd:decimal"
+    },
+    "requestedCents": {
+      "@id": "saperly:requestedCents",
+      "@type": "xsd:decimal"
+    },
+    "PaymentMethodRequired": "saperly:PaymentMethodRequired",
+    "activeNumbers": {
+      "@id": "saperly:activeNumbers",
+      "@type": "xsd:decimal"
+    },
+    "UpstreamError": "saperly:UpstreamError",
+    "status": {
+      "@id": "saperly:status",
+      "@type": "xsd:decimal"
+    },
+    "code": {
+      "@id": "saperly:code",
+      "@type": "xsd:string"
+    },
+    "IdempotencyKeyMismatch": "saperly:IdempotencyKeyMismatch",
+    "InvalidSmsSenderId": "saperly:InvalidSmsSenderId",
+    "InvalidCallerIdName": "saperly:InvalidCallerIdName",
+    "ConnectionNotFound": "saperly:ConnectionNotFound",
+    "id": {
+      "@id": "saperly:id",
+      "@type": "xsd:string"
+    },
+    "UnsupportedModel": "saperly:UnsupportedModel",
+    "field": {
+      "@id": "saperly:field",
+      "@type": "xsd:string"
+    },
+    "model": {
+      "@id": "saperly:model",
+      "@type": "xsd:string"
+    },
+    "UnsupportedVoice": "saperly:UnsupportedVoice",
+    "voice": {
+      "@id": "saperly:voice",
+      "@type": "xsd:string"
+    },
+    "AudioConfigurationError": "saperly:AudioConfigurationError",
+    "RecipientOptedOut": "saperly:RecipientOptedOut",
+    "to": {
+      "@id": "saperly:to",
+      "@type": "xsd:string"
+    },
+    "MessageSendFailed": "saperly:MessageSendFailed",
+    "DestinationNotSupported": "saperly:DestinationNotSupported",
+    "SpendLimitExceeded": "saperly:SpendLimitExceeded",
+    "limitCents": {
+      "@id": "saperly:limitCents",
+      "@type": "xsd:decimal"
+    },
+    "priorSpendCents": {
+      "@id": "saperly:priorSpendCents",
+      "@type": "xsd:decimal"
+    },
+    "NumberHasNoConnection": "saperly:NumberHasNoConnection",
+    "CallStartFailed": "saperly:CallStartFailed",
+    "CallNotFound": "saperly:CallNotFound",
+    "callId": {
+      "@id": "saperly:callId",
+      "@type": "xsd:string"
+    },
+    "CustomVoiceConflict": "saperly:CustomVoiceConflict",
+    "CustomVoiceNotFound": "saperly:CustomVoiceNotFound",
+    "InvalidVoiceUpload": "saperly:InvalidVoiceUpload"
+  },
+  "@type": "schema:Dataset",
+  "schema:name": "Saperly API JSON-LD context",
+  "schema:description": "A JSON-LD @context for the objects Saperly's own API contract declares: one class per component schema, one property per declared field, typed from the contract. Derived by script (derive-json-ld.py, 2026-10-07) from openapi/saperly-openapi.yml.",
+  "dcterms:created": "2026-10-07",
+  "dcterms:source": [
+    "openapi/saperly-openapi.yml"
+  ]
+}

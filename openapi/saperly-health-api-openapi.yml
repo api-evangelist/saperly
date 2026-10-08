@@ -1,0 +1,44 @@
+openapi: 3.2.0
+info:
+  title: Saperly Health API
+  version: 0.1.0
+  description: 'Operations tagged health across 2 of this provider''s published API definitions: api-saperly-com-openapi.json, saperly-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: /
+  description: This worker
+- url: https://api.saperly.com
+  description: Production
+security: []
+tags:
+- name: Health
+  description: Service liveness. A lightweight, unauthenticated probe for uptime checks and load balancers.
+paths:
+  /health:
+    get:
+      tags:
+      - Health
+      operationId: health.check
+      parameters: []
+      security: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum:
+                    - ok
+                required:
+                - status
+                additionalProperties: false
+      summary: Liveness probe
+    servers:
+    - url: /
+      description: This worker
+x-refined-from:
+- api-saperly-com-openapi.json
+- saperly-openapi.yml

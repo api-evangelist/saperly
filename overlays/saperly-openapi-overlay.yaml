@@ -1,0 +1,34 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist enhancements for the Saperly API
+  version: 1.0.0
+extends: ../openapi/_original/saperly-openapi.yml
+x-generated: '2026-10-07'
+x-method: generated
+x-source: https://saperly.com/docs/guides/authentication, https://saperly.com/docs/guides/errors-and-idempotency,
+  https://saperly.com/docs/sdks/mcp
+actions:
+- target: $.components
+  update:
+    securitySchemes:
+      bearerApiKey:
+        type: http
+        scheme: bearer
+        description: Scoped Saperly API key, prefixed sap_sk_live_. Carries scopes (read | write | admin), an optional
+          number allow-list and an optional spend cap; the workspace is resolved from the key.
+- target: $
+  update:
+    security:
+    - bearerApiKey: []
+- target: $.info
+  update:
+    x-apievangelist-notes: 'Every mutating endpoint accepts an Idempotency-Key header (UUID v4): same key + same
+      body replays the stored result; same key + different body -> 422 IdempotencyKeyMismatch; in-flight replay
+      -> 409 IdempotencyConflict. Errors are tagged JSON bodies discriminated by _tag.'
+    x-mcp-server: https://api.saperly.com/mcp
+- target: $.paths[*][?(@.operationId == "voice.place" || @.operationId == "messaging.send" || @.operationId == "numbers.provision")]
+  update:
+    x-idempotency-key: Idempotency-Key header (UUID v4) accepted; see https://saperly.com/docs/guides/errors-and-idempotency
+- target: $.tags[?(@.name == "keys")]
+  update:
+    description: 'Scoped key provisioning: a key with the admin scope (keys:admin) mints ceiling-bounded child keys.'

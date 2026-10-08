@@ -1,0 +1,175 @@
+generated: '2026-10-07'
+method: searched
+source: https://saperly.com/docs/guides/errors-and-idempotency (documented table); remaining tags read from the
+  error schemas and 4xx/5xx responses declared in openapi/saperly-openapi.yml
+format: 'tagged-error JSON: every error body carries a _tag discriminant plus its own fields, returned with the
+  matching HTTP status'
+envelope:
+  discriminator: _tag
+  example:
+    _tag: SpendLimitExceeded
+    limitCents: 5000
+    priorSpendCents: 4800
+    requestedCents: 300
+problems:
+- status: 401
+  title: Unauthorized
+  type: Unauthorized
+  description: No bearer token on the request (field message).
+  remediation: null
+- status: 403
+  title: AuthorizationDenied
+  type: AuthorizationDenied
+  description: A bearer was sent but it is unrecognized, revoked, lacks the required scope, or targets a number
+    outside the key's allow-list (field reason).
+  remediation: null
+- status: 403
+  title: RecipientOptedOut
+  type: RecipientOptedOut
+  description: Outbound to a peer who opted out (field to).
+  remediation: null
+- status: 404
+  title: NumberNotFound
+  type: NumberNotFound
+  description: No such number (field carries the id).
+  remediation: null
+- status: 404
+  title: ConnectionNotFound
+  type: ConnectionNotFound
+  description: No such connection (field carries the id).
+  remediation: null
+- status: 404
+  title: CallNotFound
+  type: CallNotFound
+  description: No such call (field carries the id).
+  remediation: null
+- status: 402
+  title: InsufficientFunds
+  type: InsufficientFunds
+  description: Balance too low (fields balanceCents, requestedCents).
+  remediation: null
+- status: 402
+  title: SpendLimitExceeded
+  type: SpendLimitExceeded
+  description: Scoped key's spend cap hit (fields limitCents, priorSpendCents, requestedCents).
+  remediation: null
+- status: 429
+  title: RateLimited
+  type: RateLimited
+  description: Too many requests (field bucket — which limit you hit).
+  remediation: null
+- status: 409
+  title: IdempotencyConflict
+  type: IdempotencyConflict
+  description: A key collision (an in-flight or reused key). Retry after it settles.
+  remediation: null
+- status: 422
+  title: IdempotencyKeyMismatch
+  type: IdempotencyKeyMismatch
+  description: Same Idempotency-Key, different body.
+  remediation: null
+- status: 502
+  title: UpstreamError
+  type: UpstreamError
+  description: A carrier/upstream failure (fields status, code, message).
+  remediation: null
+- status: 409
+  title: NumberQuotaExceeded
+  type: NumberQuotaExceeded
+  description: Number quota reached (fields limit, current) — https://saperly.com/docs/guides/numbers.
+  remediation: null
+- status: 503
+  title: AssistantUnavailable
+  type: AssistantUnavailable
+  description: Declared in the OpenAPI contract as error tag AssistantUnavailable.
+  source: openapi/saperly-openapi.yml
+- status: 422
+  title: AudioConfigurationError
+  type: AudioConfigurationError
+  description: Declared in the OpenAPI contract as error tag AudioConfigurationError.
+  source: openapi/saperly-openapi.yml
+- status: 502
+  title: CallStartFailed
+  type: CallStartFailed
+  description: Declared in the OpenAPI contract as error tag CallStartFailed.
+  source: openapi/saperly-openapi.yml
+- status: 403
+  title: CountryNotAvailable
+  type: CountryNotAvailable
+  description: Declared in the OpenAPI contract as error tag CountryNotAvailable.
+  source: openapi/saperly-openapi.yml
+- status: 409
+  title: CustomVoiceConflict
+  type: CustomVoiceConflict
+  description: Declared in the OpenAPI contract as error tag CustomVoiceConflict.
+  source: openapi/saperly-openapi.yml
+- status: 404
+  title: CustomVoiceNotFound
+  type: CustomVoiceNotFound
+  description: Declared in the OpenAPI contract as error tag CustomVoiceNotFound.
+  source: openapi/saperly-openapi.yml
+- status: 400
+  title: DestinationNotSupported
+  type: DestinationNotSupported
+  description: Declared in the OpenAPI contract as error tag DestinationNotSupported.
+  source: openapi/saperly-openapi.yml
+- status: 500
+  title: InternalError
+  type: InternalError
+  description: Declared in the OpenAPI contract as error tag InternalError.
+  source: openapi/saperly-openapi.yml
+- status: 400
+  title: InvalidCallerIdName
+  type: InvalidCallerIdName
+  description: Declared in the OpenAPI contract as error tag InvalidCallerIdName.
+  source: openapi/saperly-openapi.yml
+- status: 400
+  title: InvalidSmsSenderId
+  type: InvalidSmsSenderId
+  description: Declared in the OpenAPI contract as error tag InvalidSmsSenderId.
+  source: openapi/saperly-openapi.yml
+- status: 422
+  title: InvalidVoiceUpload
+  type: InvalidVoiceUpload
+  description: Declared in the OpenAPI contract as error tag InvalidVoiceUpload.
+  source: openapi/saperly-openapi.yml
+- status: 502
+  title: MessageSendFailed
+  type: MessageSendFailed
+  description: Declared in the OpenAPI contract as error tag MessageSendFailed.
+  source: openapi/saperly-openapi.yml
+- status: 404
+  title: NoNumbersAvailable
+  type: NoNumbersAvailable
+  description: Declared in the OpenAPI contract as error tag NoNumbersAvailable.
+  source: openapi/saperly-openapi.yml
+- status: 422
+  title: NumberHasNoConnection
+  type: NumberHasNoConnection
+  description: Declared in the OpenAPI contract as error tag NumberHasNoConnection.
+  source: openapi/saperly-openapi.yml
+- status: 402
+  title: PaymentMethodRequired
+  type: PaymentMethodRequired
+  description: Declared in the OpenAPI contract as error tag PaymentMethodRequired.
+  source: openapi/saperly-openapi.yml
+- status: 409
+  title: PriceChanged
+  type: PriceChanged
+  description: Declared in the OpenAPI contract as error tag PriceChanged.
+  source: openapi/saperly-openapi.yml
+- status: 422
+  title: UnsupportedModel
+  type: UnsupportedModel
+  description: Declared in the OpenAPI contract as error tag UnsupportedModel.
+  source: openapi/saperly-openapi.yml
+- status: 422
+  title: UnsupportedVoice
+  type: UnsupportedVoice
+  description: Declared in the OpenAPI contract as error tag UnsupportedVoice.
+  source: openapi/saperly-openapi.yml
+- status: 404
+  title: WorkspaceNotFound
+  type: WorkspaceNotFound
+  description: Declared in the OpenAPI contract as error tag WorkspaceNotFound.
+  source: openapi/saperly-openapi.yml
