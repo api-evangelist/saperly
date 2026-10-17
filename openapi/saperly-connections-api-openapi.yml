@@ -2,12 +2,10 @@ openapi: 3.2.0
 info:
   title: Saperly Connections API
   version: 0.1.0
-  description: 'Operations tagged connections across 2 of this provider''s published API definitions: api-saperly-com-openapi.json, saperly-openapi.yml. Each path carries the servers of the definition it was published in.'
+  description: Capability interface surface for Saperly. Slug-in-path workspace routes for the dashboard, an org-from-token (sk_) data plane for agents (numbers, connections, messaging, voice, voices, languages, usage, consent, pricing), scoped key provisioning (a keys:admin key mints ceiling-bounded child keys), and the assistant — all over the same capability layer. The MCP server is a separate JSON-RPC 2.0 surface at /mcp (not part of this OpenAPI contract).
 servers:
 - url: /
   description: This worker
-- url: https://api.saperly.com
-  description: Production
 security: []
 tags:
 - name: Connections
@@ -755,9 +753,6 @@ paths:
               additionalProperties: false
               description: Create a connection — the handler bound to a phone number. Hosted lines configure an in-network assistant (model, voice, language, MCP tools); manual lines forward turns to your own brain.
         required: true
-    servers:
-    - url: /
-      description: This worker
   /connections/{id}:
     get:
       tags:
@@ -1573,34 +1568,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/InternalError'
       summary: Delete a connection
-    servers:
-    - url: /
-      description: This worker
 components:
   schemas:
-    UpstreamError:
-      type: object
-      properties:
-        _tag:
-          type: string
-          enum:
-          - UpstreamError
-        status:
-          type: number
-          allOf:
-          - description: The HTTP status the carrier returned upstream.
-        code:
-          type: string
-          description: A short machine-readable code for the upstream failure.
-        message:
-          type: string
-          description: A human-readable description of the upstream failure (carrier identity scrubbed).
-      required:
-      - _tag
-      - status
-      - code
-      - message
-      additionalProperties: false
     UnsupportedVoice:
       type: object
       properties:
@@ -1620,18 +1589,51 @@ components:
       - voice
       - message
       additionalProperties: false
-    ConnectionNotFound:
+    UnsupportedModel:
       type: object
       properties:
         _tag:
           type: string
           enum:
-          - ConnectionNotFound
-        id:
+          - UnsupportedModel
+        field:
+          type: string
+        model:
+          type: string
+        message:
           type: string
       required:
       - _tag
-      - id
+      - field
+      - model
+      - message
+      additionalProperties: false
+    AudioConfigurationError:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - AudioConfigurationError
+        message:
+          type: string
+      required:
+      - _tag
+      - message
+      additionalProperties: false
+    IdempotencyKeyMismatch:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - IdempotencyKeyMismatch
+        message:
+          type: string
+          description: Why the `Idempotency-Key` is unprocessable — either malformed (e.g. over the length cap) or reused for a request with a different payload.
+      required:
+      - _tag
+      - message
       additionalProperties: false
     RateLimited:
       type: object
@@ -1661,51 +1663,18 @@ components:
       - _tag
       - message
       additionalProperties: false
-    AudioConfigurationError:
+    AuthorizationDenied:
       type: object
       properties:
         _tag:
           type: string
           enum:
-          - AudioConfigurationError
-        message:
+          - AuthorizationDenied
+        reason:
           type: string
       required:
       - _tag
-      - message
-      additionalProperties: false
-    IdempotencyConflict:
-      type: object
-      properties:
-        _tag:
-          type: string
-          enum:
-          - IdempotencyConflict
-        message:
-          type: string
-          description: Details of the conflict — a concurrent request is still processing under the same `Idempotency-Key`.
-      required:
-      - _tag
-      - message
-      additionalProperties: false
-    UnsupportedModel:
-      type: object
-      properties:
-        _tag:
-          type: string
-          enum:
-          - UnsupportedModel
-        field:
-          type: string
-        model:
-          type: string
-        message:
-          type: string
-      required:
-      - _tag
-      - field
-      - model
-      - message
+      - reason
       additionalProperties: false
     InternalError:
       type: object
@@ -1721,33 +1690,53 @@ components:
       - _tag
       - traceId
       additionalProperties: false
-    AuthorizationDenied:
+    IdempotencyConflict:
       type: object
       properties:
         _tag:
           type: string
           enum:
-          - AuthorizationDenied
-        reason:
-          type: string
-      required:
-      - _tag
-      - reason
-      additionalProperties: false
-    IdempotencyKeyMismatch:
-      type: object
-      properties:
-        _tag:
-          type: string
-          enum:
-          - IdempotencyKeyMismatch
+          - IdempotencyConflict
         message:
           type: string
-          description: Why the `Idempotency-Key` is unprocessable — either malformed (e.g. over the length cap) or reused for a request with a different payload.
+          description: Details of the conflict — a concurrent request is still processing under the same `Idempotency-Key`.
       required:
       - _tag
       - message
       additionalProperties: false
-x-refined-from:
-- api-saperly-com-openapi.json
-- saperly-openapi.yml
+    ConnectionNotFound:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - ConnectionNotFound
+        id:
+          type: string
+      required:
+      - _tag
+      - id
+      additionalProperties: false
+    UpstreamError:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - UpstreamError
+        status:
+          type: number
+          allOf:
+          - description: The HTTP status the carrier returned upstream.
+        code:
+          type: string
+          description: A short machine-readable code for the upstream failure.
+        message:
+          type: string
+          description: A human-readable description of the upstream failure (carrier identity scrubbed).
+      required:
+      - _tag
+      - status
+      - code
+      - message
+      additionalProperties: false

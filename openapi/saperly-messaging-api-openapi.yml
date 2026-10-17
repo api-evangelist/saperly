@@ -2,12 +2,10 @@ openapi: 3.2.0
 info:
   title: Saperly Messaging API
   version: 0.1.0
-  description: 'Operations tagged messaging across 2 of this provider''s published API definitions: api-saperly-com-openapi.json, saperly-openapi.yml. Each path carries the servers of the definition it was published in.'
+  description: Capability interface surface for Saperly. Slug-in-path workspace routes for the dashboard, an org-from-token (sk_) data plane for agents (numbers, connections, messaging, voice, voices, languages, usage, consent, pricing), scoped key provisioning (a keys:admin key mints ceiling-bounded child keys), and the assistant — all over the same capability layer. The MCP server is a separate JSON-RPC 2.0 surface at /mcp (not part of this OpenAPI contract).
 servers:
 - url: /
   description: This worker
-- url: https://api.saperly.com
-  description: Production
 security: []
 tags:
 - name: Messaging
@@ -231,24 +229,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/InternalError'
       summary: List messages (optionally filtered by number)
-    servers:
-    - url: /
-      description: This worker
 components:
   schemas:
-    MessageSendFailed:
-      type: object
-      properties:
-        _tag:
-          type: string
-          enum:
-          - MessageSendFailed
-        reason:
-          type: string
-      required:
-      - _tag
-      - reason
-      additionalProperties: false
     RateLimited:
       type: object
       properties:
@@ -263,18 +245,45 @@ components:
       - _tag
       - bucket
       additionalProperties: false
-    RecipientOptedOut:
+    IdempotencyKeyMismatch:
       type: object
       properties:
         _tag:
           type: string
           enum:
-          - RecipientOptedOut
-        to:
+          - IdempotencyKeyMismatch
+        message:
+          type: string
+          description: Why the `Idempotency-Key` is unprocessable — either malformed (e.g. over the length cap) or reused for a request with a different payload.
+      required:
+      - _tag
+      - message
+      additionalProperties: false
+    NumberNotFound:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - NumberNotFound
+        numberId:
           type: string
       required:
       - _tag
-      - to
+      - numberId
+      additionalProperties: false
+    MessageSendFailed:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - MessageSendFailed
+        reason:
+          type: string
+      required:
+      - _tag
+      - reason
       additionalProperties: false
     Unauthorized:
       type: object
@@ -290,6 +299,49 @@ components:
       - _tag
       - message
       additionalProperties: false
+    AuthorizationDenied:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - AuthorizationDenied
+        reason:
+          type: string
+      required:
+      - _tag
+      - reason
+      additionalProperties: false
+    InternalError:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - InternalError
+        traceId:
+          type: string
+          description: A correlation id for this failure — quote it when reporting the problem so the request can be traced.
+      required:
+      - _tag
+      - traceId
+      additionalProperties: false
+    InsufficientFunds:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - InsufficientFunds
+        balanceCents:
+          type: number
+        requestedCents:
+          type: number
+      required:
+      - _tag
+      - balanceCents
+      - requestedCents
+      additionalProperties: false
     IdempotencyConflict:
       type: object
       properties:
@@ -303,19 +355,6 @@ components:
       required:
       - _tag
       - message
-      additionalProperties: false
-    DestinationNotSupported:
-      type: object
-      properties:
-        _tag:
-          type: string
-          enum:
-          - DestinationNotSupported
-        to:
-          type: string
-      required:
-      - _tag
-      - to
       additionalProperties: false
     SpendLimitExceeded:
       type: object
@@ -336,76 +375,29 @@ components:
       - priorSpendCents
       - requestedCents
       additionalProperties: false
-    InsufficientFunds:
+    DestinationNotSupported:
       type: object
       properties:
         _tag:
           type: string
           enum:
-          - InsufficientFunds
-        balanceCents:
-          type: number
-        requestedCents:
-          type: number
+          - DestinationNotSupported
+        to:
+          type: string
       required:
       - _tag
-      - balanceCents
-      - requestedCents
+      - to
       additionalProperties: false
-    InternalError:
+    RecipientOptedOut:
       type: object
       properties:
         _tag:
           type: string
           enum:
-          - InternalError
-        traceId:
-          type: string
-          description: A correlation id for this failure — quote it when reporting the problem so the request can be traced.
-      required:
-      - _tag
-      - traceId
-      additionalProperties: false
-    AuthorizationDenied:
-      type: object
-      properties:
-        _tag:
-          type: string
-          enum:
-          - AuthorizationDenied
-        reason:
+          - RecipientOptedOut
+        to:
           type: string
       required:
       - _tag
-      - reason
+      - to
       additionalProperties: false
-    NumberNotFound:
-      type: object
-      properties:
-        _tag:
-          type: string
-          enum:
-          - NumberNotFound
-        numberId:
-          type: string
-      required:
-      - _tag
-      - numberId
-      additionalProperties: false
-    IdempotencyKeyMismatch:
-      type: object
-      properties:
-        _tag:
-          type: string
-          enum:
-          - IdempotencyKeyMismatch
-        message:
-          type: string
-          description: Why the `Idempotency-Key` is unprocessable — either malformed (e.g. over the length cap) or reused for a request with a different payload.
-      required:
-      - _tag
-      - message
-      additionalProperties: false
-x-refined-from:
-- api-saperly-com-openapi.json
-- saperly-openapi.yml

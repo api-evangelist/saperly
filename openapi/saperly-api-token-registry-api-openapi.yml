@@ -2,12 +2,10 @@ openapi: 3.2.0
 info:
   title: Saperly API Token Registry API
   version: 0.1.0
-  description: 'Operations tagged api-token-registry across 2 of this provider''s published API definitions: api-saperly-com-openapi.json, saperly-openapi.yml. Each path carries the servers of the definition it was published in.'
+  description: Capability interface surface for Saperly. Slug-in-path workspace routes for the dashboard, an org-from-token (sk_) data plane for agents (numbers, connections, messaging, voice, voices, languages, usage, consent, pricing), scoped key provisioning (a keys:admin key mints ceiling-bounded child keys), and the assistant — all over the same capability layer. The MCP server is a separate JSON-RPC 2.0 surface at /mcp (not part of this OpenAPI contract).
 servers:
 - url: /
   description: This worker
-- url: https://api.saperly.com
-  description: Production
 security: []
 tags:
 - name: api-token-registry
@@ -144,9 +142,6 @@ paths:
               additionalProperties: false
               description: 'The new token: a display `name`, the `scopes` it may exercise, an optional `numberScope` allow-list of phone-number ids, and an optional per-key `spendLimitCents` cap (with `spendLimitResetPeriod`). The full secret is returned once on create.'
         required: true
-    servers:
-    - url: /
-      description: This worker
   /workspaces/{slug}/api-tokens/{tokenId}/revoke:
     post:
       tags:
@@ -212,11 +207,21 @@ paths:
               schema:
                 $ref: '#/components/schemas/InternalError'
       summary: Revoke an API token
-    servers:
-    - url: /
-      description: This worker
 components:
   schemas:
+    WorkspaceNotFound:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - WorkspaceNotFound
+        slug:
+          type: string
+      required:
+      - _tag
+      - slug
+      additionalProperties: false
     RateLimited:
       type: object
       properties:
@@ -245,18 +250,18 @@ components:
       - _tag
       - message
       additionalProperties: false
-    WorkspaceNotFound:
+    AuthorizationDenied:
       type: object
       properties:
         _tag:
           type: string
           enum:
-          - WorkspaceNotFound
-        slug:
+          - AuthorizationDenied
+        reason:
           type: string
       required:
       - _tag
-      - slug
+      - reason
       additionalProperties: false
     InternalError:
       type: object
@@ -272,19 +277,3 @@ components:
       - _tag
       - traceId
       additionalProperties: false
-    AuthorizationDenied:
-      type: object
-      properties:
-        _tag:
-          type: string
-          enum:
-          - AuthorizationDenied
-        reason:
-          type: string
-      required:
-      - _tag
-      - reason
-      additionalProperties: false
-x-refined-from:
-- api-saperly-com-openapi.json
-- saperly-openapi.yml

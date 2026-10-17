@@ -2,12 +2,10 @@ openapi: 3.2.0
 info:
   title: Saperly Usage API
   version: 0.1.0
-  description: 'Operations tagged usage across 2 of this provider''s published API definitions: api-saperly-com-openapi.json, saperly-openapi.yml. Each path carries the servers of the definition it was published in.'
+  description: Capability interface surface for Saperly. Slug-in-path workspace routes for the dashboard, an org-from-token (sk_) data plane for agents (numbers, connections, messaging, voice, voices, languages, usage, consent, pricing), scoped key provisioning (a keys:admin key mints ceiling-bounded child keys), and the assistant — all over the same capability layer. The MCP server is a separate JSON-RPC 2.0 surface at /mcp (not part of this OpenAPI contract).
 servers:
 - url: /
   description: This worker
-- url: https://api.saperly.com
-  description: Production
 security: []
 tags:
 - name: Usage
@@ -90,9 +88,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/InternalError'
       summary: Get a usage summary (optionally since a timestamp)
-    servers:
-    - url: /
-      description: This worker
 components:
   schemas:
     AuthorizationDenied:
@@ -107,6 +102,20 @@ components:
       required:
       - _tag
       - reason
+      additionalProperties: false
+    InternalError:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - InternalError
+        traceId:
+          type: string
+          description: A correlation id for this failure — quote it when reporting the problem so the request can be traced.
+      required:
+      - _tag
+      - traceId
       additionalProperties: false
     RateLimited:
       type: object
@@ -136,20 +145,3 @@ components:
       - _tag
       - message
       additionalProperties: false
-    InternalError:
-      type: object
-      properties:
-        _tag:
-          type: string
-          enum:
-          - InternalError
-        traceId:
-          type: string
-          description: A correlation id for this failure — quote it when reporting the problem so the request can be traced.
-      required:
-      - _tag
-      - traceId
-      additionalProperties: false
-x-refined-from:
-- api-saperly-com-openapi.json
-- saperly-openapi.yml

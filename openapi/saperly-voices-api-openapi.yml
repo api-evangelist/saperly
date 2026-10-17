@@ -2,12 +2,10 @@ openapi: 3.2.0
 info:
   title: Saperly Voices API
   version: 0.1.0
-  description: 'Operations tagged voices across 2 of this provider''s published API definitions: api-saperly-com-openapi.json, saperly-openapi.yml. Each path carries the servers of the definition it was published in.'
+  description: Capability interface surface for Saperly. Slug-in-path workspace routes for the dashboard, an org-from-token (sk_) data plane for agents (numbers, connections, messaging, voice, voices, languages, usage, consent, pricing), scoped key provisioning (a keys:admin key mints ceiling-bounded child keys), and the assistant — all over the same capability layer. The MCP server is a separate JSON-RPC 2.0 surface at /mcp (not part of this OpenAPI contract).
 servers:
 - url: /
   description: This worker
-- url: https://api.saperly.com
-  description: Production
 security: []
 tags:
 - name: Voices
@@ -106,32 +104,19 @@ paths:
               schema:
                 $ref: '#/components/schemas/UpstreamError'
       summary: List available voices (optionally filtered by language)
-    servers:
-    - url: /
-      description: This worker
 components:
   schemas:
-    UpstreamError:
+    CustomVoiceNotFound:
       type: object
       properties:
         _tag:
           type: string
           enum:
-          - UpstreamError
-        status:
-          type: number
-          allOf:
-          - description: The HTTP status the carrier returned upstream.
-        code:
-          type: string
-          description: A short machine-readable code for the upstream failure.
+          - CustomVoiceNotFound
         message:
           type: string
-          description: A human-readable description of the upstream failure (carrier identity scrubbed).
       required:
       - _tag
-      - status
-      - code
       - message
       additionalProperties: false
     RateLimited:
@@ -147,47 +132,6 @@ components:
       required:
       - _tag
       - bucket
-      additionalProperties: false
-    Unauthorized:
-      type: object
-      properties:
-        _tag:
-          type: string
-          enum:
-          - Unauthorized
-        message:
-          type: string
-          description: Why the request was rejected (missing, invalid, or insufficient credentials).
-      required:
-      - _tag
-      - message
-      additionalProperties: false
-    InternalError:
-      type: object
-      properties:
-        _tag:
-          type: string
-          enum:
-          - InternalError
-        traceId:
-          type: string
-          description: A correlation id for this failure — quote it when reporting the problem so the request can be traced.
-      required:
-      - _tag
-      - traceId
-      additionalProperties: false
-    CustomVoiceNotFound:
-      type: object
-      properties:
-        _tag:
-          type: string
-          enum:
-          - CustomVoiceNotFound
-        message:
-          type: string
-      required:
-      - _tag
-      - message
       additionalProperties: false
     CustomVoiceConflict:
       type: object
@@ -207,6 +151,20 @@ components:
       required:
       - _tag
       - code
+      - message
+      additionalProperties: false
+    Unauthorized:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - Unauthorized
+        message:
+          type: string
+          description: Why the request was rejected (missing, invalid, or insufficient credentials).
+      required:
+      - _tag
       - message
       additionalProperties: false
     InvalidVoiceUpload:
@@ -235,6 +193,40 @@ components:
       - _tag
       - reason
       additionalProperties: false
-x-refined-from:
-- api-saperly-com-openapi.json
-- saperly-openapi.yml
+    InternalError:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - InternalError
+        traceId:
+          type: string
+          description: A correlation id for this failure — quote it when reporting the problem so the request can be traced.
+      required:
+      - _tag
+      - traceId
+      additionalProperties: false
+    UpstreamError:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - UpstreamError
+        status:
+          type: number
+          allOf:
+          - description: The HTTP status the carrier returned upstream.
+        code:
+          type: string
+          description: A short machine-readable code for the upstream failure.
+        message:
+          type: string
+          description: A human-readable description of the upstream failure (carrier identity scrubbed).
+      required:
+      - _tag
+      - status
+      - code
+      - message
+      additionalProperties: false

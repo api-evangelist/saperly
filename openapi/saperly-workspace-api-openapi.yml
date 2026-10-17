@@ -2,12 +2,10 @@ openapi: 3.2.0
 info:
   title: Saperly Workspace API
   version: 0.1.0
-  description: 'Operations tagged workspace across 2 of this provider''s published API definitions: api-saperly-com-openapi.json, saperly-openapi.yml. Each path carries the servers of the definition it was published in.'
+  description: Capability interface surface for Saperly. Slug-in-path workspace routes for the dashboard, an org-from-token (sk_) data plane for agents (numbers, connections, messaging, voice, voices, languages, usage, consent, pricing), scoped key provisioning (a keys:admin key mints ceiling-bounded child keys), and the assistant — all over the same capability layer. The MCP server is a separate JSON-RPC 2.0 surface at /mcp (not part of this OpenAPI contract).
 servers:
 - url: /
   description: This worker
-- url: https://api.saperly.com
-  description: Production
 security: []
 tags:
 - name: Workspace
@@ -96,9 +94,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/InternalError'
       summary: List the workspace members
-    servers:
-    - url: /
-      description: This worker
   /workspaces/{slug}/api-tokens:
     get:
       tags:
@@ -228,9 +223,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/InternalError'
       summary: List the workspace API tokens
-    servers:
-    - url: /
-      description: This worker
   /workspaces/{slug}/webhooks:
     get:
       tags:
@@ -424,9 +416,6 @@ paths:
               additionalProperties: false
               description: 'The new endpoint: the HTTPS `url` to POST events to, the `events` it subscribes to, and an optional `description`. The response includes the generated `signingSecret`.'
         required: true
-    servers:
-    - url: /
-      description: This worker
   /workspaces/{slug}/webhooks/{webhookId}/deliveries:
     get:
       tags:
@@ -524,9 +513,6 @@ paths:
                 $ref: '#/components/schemas/InternalError'
       description: 'Returns the endpoint''s most recent delivery attempts (newest first), each with the event type, outcome (`delivered`/`failed`), HTTP `responseStatus`, attempt number, and timestamps — so you can see exactly why a delivery did or didn''t land (e.g. a run of `failed` with `responseStatus: 530` means your receiver is unreachable).'
       summary: List a webhook endpoint's recent delivery attempts
-    servers:
-    - url: /
-      description: This worker
   /workspaces/{slug}/audit-events:
     get:
       tags:
@@ -598,11 +584,21 @@ paths:
               schema:
                 $ref: '#/components/schemas/InternalError'
       summary: List the workspace audit-log events
-    servers:
-    - url: /
-      description: This worker
 components:
   schemas:
+    WorkspaceNotFound:
+      type: object
+      properties:
+        _tag:
+          type: string
+          enum:
+          - WorkspaceNotFound
+        slug:
+          type: string
+      required:
+      - _tag
+      - slug
+      additionalProperties: false
     RateLimited:
       type: object
       properties:
@@ -631,18 +627,18 @@ components:
       - _tag
       - message
       additionalProperties: false
-    WorkspaceNotFound:
+    AuthorizationDenied:
       type: object
       properties:
         _tag:
           type: string
           enum:
-          - WorkspaceNotFound
-        slug:
+          - AuthorizationDenied
+        reason:
           type: string
       required:
       - _tag
-      - slug
+      - reason
       additionalProperties: false
     InternalError:
       type: object
@@ -658,19 +654,3 @@ components:
       - _tag
       - traceId
       additionalProperties: false
-    AuthorizationDenied:
-      type: object
-      properties:
-        _tag:
-          type: string
-          enum:
-          - AuthorizationDenied
-        reason:
-          type: string
-      required:
-      - _tag
-      - reason
-      additionalProperties: false
-x-refined-from:
-- api-saperly-com-openapi.json
-- saperly-openapi.yml
