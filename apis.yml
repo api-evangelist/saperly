@@ -132,6 +132,8 @@ apis:
   humanURL: https://saperly.com/docs/api-reference
   baseURL: https://api.saperly.com
   tags:
+  - Assistant
+  tags_raw:
   - assistant
   properties:
   - type: OpenAPI
@@ -149,6 +151,8 @@ apis:
   humanURL: https://saperly.com/docs/api-reference
   baseURL: https://api.saperly.com
   tags:
+  - Connections
+  tags_raw:
   - connections
   properties:
   - type: OpenAPI
@@ -166,6 +170,8 @@ apis:
   humanURL: https://saperly.com/docs/api-reference
   baseURL: https://api.saperly.com
   tags:
+  - Consent
+  tags_raw:
   - consent
   properties:
   - type: OpenAPI
@@ -179,7 +185,8 @@ apis:
   description: The customVoices API from Saperly — 2 operation(s) for customvoices.
   humanURL: https://saperly.com/docs/api-reference
   baseURL: https://api.saperly.com
-  tags:
+  tags: []
+  tags_raw:
   - customVoices
   properties:
   - type: OpenAPI
@@ -195,6 +202,8 @@ apis:
   humanURL: https://saperly.com/docs/api-reference
   baseURL: https://api.saperly.com
   tags:
+  - Health
+  tags_raw:
   - health
   properties:
   - type: OpenAPI
@@ -213,6 +222,8 @@ apis:
   humanURL: https://saperly.com/docs/api-reference
   baseURL: https://api.saperly.com
   tags:
+  - Keys
+  tags_raw:
   - keys
   properties:
   - type: OpenAPI
@@ -231,6 +242,8 @@ apis:
   humanURL: https://saperly.com/docs/api-reference
   baseURL: https://api.saperly.com
   tags:
+  - Language
+  tags_raw:
   - languages
   properties:
   - type: OpenAPI
@@ -248,6 +261,8 @@ apis:
   humanURL: https://saperly.com/docs/api-reference
   baseURL: https://api.saperly.com
   tags:
+  - Messaging
+  tags_raw:
   - messaging
   properties:
   - type: OpenAPI
@@ -265,6 +280,8 @@ apis:
   humanURL: https://saperly.com/docs/api-reference
   baseURL: https://api.saperly.com
   tags:
+  - Numbers
+  tags_raw:
   - numbers
   properties:
   - type: OpenAPI
@@ -282,6 +299,8 @@ apis:
   humanURL: https://saperly.com/docs/api-reference
   baseURL: https://api.saperly.com
   tags:
+  - Pricing
+  tags_raw:
   - pricing
   properties:
   - type: OpenAPI
@@ -298,6 +317,8 @@ apis:
   humanURL: https://saperly.com/docs/api-reference
   baseURL: https://api.saperly.com
   tags:
+  - Usage
+  tags_raw:
   - usage
   properties:
   - type: OpenAPI
@@ -315,6 +336,8 @@ apis:
   humanURL: https://saperly.com/docs/api-reference
   baseURL: https://api.saperly.com
   tags:
+  - Voice
+  tags_raw:
   - voice
   properties:
   - type: OpenAPI
@@ -332,6 +355,8 @@ apis:
   humanURL: https://saperly.com/docs/api-reference
   baseURL: https://api.saperly.com
   tags:
+  - Voice
+  tags_raw:
   - voices
   properties:
   - type: OpenAPI
@@ -348,6 +373,8 @@ apis:
   humanURL: https://saperly.com/docs/api-reference
   baseURL: https://api.saperly.com
   tags:
+  - Workspace
+  tags_raw:
   - workspace
   properties:
   - type: OpenAPI
@@ -362,6 +389,8 @@ apis:
   humanURL: https://saperly.com/docs/api-reference
   baseURL: https://api.saperly.com
   tags:
+  - Workspace Invitations
+  tags_raw:
   - workspace-invitations
   properties:
   - type: OpenAPI
